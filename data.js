@@ -281,9 +281,12 @@ const CHAPTERS = [
       { kicker: "Fundamento 3", title: "Linha de visada",
         body: `<p>Linha reta que sai do <strong>olho</strong>, passa pela <strong>alça de mira</strong> e pela <strong>massa de mira</strong> e termina no <strong>alvo</strong>.</p>`,
         img: "img/linha-visada.webp", imgClass: "contain light" },
-      { kicker: "Fundamento 3 · Jogo", title: "Alinhe e dispare",
-        body: `<p>Arraste com o dedo ou o mouse até a <strong>massa</strong> ficar no meio da <strong>alça</strong>, com os topos nivelados, e aperte <strong>Disparar</strong>. A mão balança um pouco, como na vida real, e o recuo tira a visada do lugar a cada tiro. São 5 tiros por série.</p>`,
-        img: "img/visada-ideal.webp",
+      { kicker: "Fundamento 3 · Estande virtual", title: "Mire e dispare",
+        body: `<p>Agora é você na linha de tiro, vendo pela arma. Faça na ordem:</p>
+        <ol><li><strong>Alinhe:</strong> a massa (lá na frente) no meio da alça (perto de você), com os topos nivelados.</li>
+        <li><strong>Leve ao alvo:</strong> arraste a arma até o topo da massa ficar no centro do alvo.</li>
+        <li><strong>Respire e dispare:</strong> segure o botão da respiração para a mão firmar e aperte Disparar.</li></ol>
+        <p>Se mexer rápido, a massa sai do lugar: espere ela voltar. Repare que o alvo fica um pouco borrado: o foco é sempre na massa.</p>`,
         widget: { type: "sight" } },
       { kicker: "Fundamento 4", title: "Acionamento do gatilho",
         body: `<p>O fundamento mais difícil e o mais importante: é na hora do disparo que quase todo mundo erra.</p>

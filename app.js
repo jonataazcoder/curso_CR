@@ -146,16 +146,7 @@
         return `<div class="steps"><div class="step-dots">${w.steps.map((_, k) => `<span data-k="${k}"></span>`).join("")}</div>
           <div class="step-card"></div><div class="step-nav"><button class="btn" data-d="-1">←</button><button class="btn primary" data-d="1">Próxima etapa →</button></div></div>`;
       case "sight":
-        return `<div class="sight"><div class="sight-hud"><span>Tiros: <b id="sgShots">0/5</b></span><span>Pontos: <b id="sgPts">0</b></span><span id="sgLast"></span></div>
-          <svg viewBox="0 0 320 220" id="sgSvg" aria-label="Jogo de visada: arraste a massa até alinhar com a alça e dispare">
-            <rect width="320" height="220" fill="#e8e4d8"/>
-            ${[60, 45, 30, 15].map((r, k) => `<circle cx="160" cy="80" r="${r}" class="tgt ${k === 3 ? "c" : ""}"/>`).join("")}<circle cx="160" cy="80" r="5" class="tgt x"/>
-            <g id="sgHoles"></g>
-            <g id="sgFront"><rect class="post" x="152" y="110" width="16" height="140" rx="2"/><rect x="152" y="110" width="16" height="5" fill="#f5a623"/></g>
-            <path class="rear" id="sgRear" d="M0 110 H140 V220 H0 Z M180 110 H320 V220 H180 Z"/>
-          </svg>
-          <p class="sight-msg" id="sgMsg">Arraste para alinhar a massa na alça.</p>
-          <div class="sight-btns"><button class="btn primary fire" id="sgFire">Disparar 🎯</button><button class="btn" id="sgReset" hidden>Nova série ↺</button></div></div>`;
+        return `<div class="fpw"><p class="m3d-loading">Carregando o estande…</p></div>`;
       case "rules":
         return `<div class="rules">${w.items.map(([ic, t, r, why, ex]) => `<button class="rule"><span class="ico">${ic}</span><span class="rt"><b>${t}</b><span>${r}</span></span><span class="chev">＋</span>
           <span class="more"><span><em>Por quê?</em> ${why}</span><span><em>Na prática:</em> ${ex}</span></span></button>`).join("")}</div><p class="rules-count">0 de ${w.items.length} abertas</p>`;
@@ -219,46 +210,7 @@
       };
       draw();
     }
-    if (w.type === "sight") {
-      const svg = $("#sgSvg"), front = $("#sgFront"), msg = $("#sgMsg");
-      const rnd = (m) => (Math.random() * 2 - 1) * m;
-      let off, shots, pts, drag = null, t0 = performance.now();
-      const reset = () => { off = { x: rnd(35), y: -15 - Math.random() * 20 }; shots = 0; pts = 0; $("#sgHoles").innerHTML = ""; $("#sgShots").textContent = "0/5"; $("#sgPts").textContent = "0"; $("#sgLast").textContent = ""; $("#sgFire").hidden = false; $("#sgReset").hidden = true; };
-      const eff = () => { const t = (performance.now() - t0) / 1000; return { x: off.x + Math.sin(t * 1.7) * 2.2 + Math.sin(t * 3.1) * 1.1, y: off.y + Math.cos(t * 1.3) * 2 + Math.sin(t * 2.6) * 1 }; };
-      const tick = () => {
-        if (!svg.isConnected) return;
-        const e = eff(), ok = Math.abs(e.x) <= 3.5 && Math.abs(e.y) <= 3.5;
-        front.setAttribute("transform", `translate(${e.x.toFixed(1)} ${e.y.toFixed(1)})`);
-        svg.classList.toggle("aligned", ok);
-        if (!$("#sgReset").hidden) {} else msg.textContent = ok ? "✅ Alinhado! Dispare agora." : Math.abs(e.x) > 3.5 ? (e.x > 0 ? "Massa à direita: o tiro vai para a direita." : "Massa à esquerda: o tiro vai para a esquerda.") : e.y < 0 ? "Massa alta: o tiro sobe." : "Massa baixa: o tiro cai.";
-        msg.classList.toggle("ok", ok);
-        requestAnimationFrame(tick);
-      };
-      const scale = () => 320 / svg.getBoundingClientRect().width;
-      svg.addEventListener("pointerdown", (e) => { drag = [e.clientX, e.clientY]; svg.setPointerCapture(e.pointerId); });
-      svg.addEventListener("pointermove", (e) => {
-        if (!drag) return; const k = scale();
-        off.x = Math.max(-60, Math.min(60, off.x + (e.clientX - drag[0]) * k));
-        off.y = Math.max(-50, Math.min(50, off.y + (e.clientY - drag[1]) * k)); drag = [e.clientX, e.clientY];
-      });
-      svg.addEventListener("pointerup", () => (drag = null));
-      $("#sgFire").onclick = () => {
-        const e = eff(), ix = 160 + e.x * 3 + rnd(2.5), iy = 80 + e.y * 3 + rnd(2.5), d = Math.hypot(ix - 160, iy - 80);
-        const p = d < 6 ? 10 : d < 15 ? 9 : d < 30 ? 8 : d < 45 ? 7 : d < 60 ? 6 : 0;
-        $("#sgHoles").insertAdjacentHTML("beforeend", `<circle cx="${ix.toFixed(1)}" cy="${iy.toFixed(1)}" r="3.2" class="hole"/>`);
-        shots++; pts += p;
-        $("#sgShots").textContent = `${shots}/5`; $("#sgPts").textContent = pts;
-        $("#sgLast").textContent = p ? `último: ${p}` : "último: fora!";
-        svg.classList.remove("recoil"); void svg.offsetWidth; svg.classList.add("recoil");
-        off = { x: off.x + rnd(18), y: off.y - 14 - Math.random() * 12 };
-        if (shots === 5) {
-          $("#sgFire").hidden = true; $("#sgReset").hidden = false;
-          msg.textContent = `${pts}/50 · ${pts >= 45 ? "Atirador(a) de elite! 🏆" : pts >= 35 ? "Bom agrupamento! Agora é constância." : "Alinhe com calma antes de cada disparo: massa no meio da alça, topos nivelados."}`;
-        }
-      };
-      $("#sgReset").onclick = reset;
-      reset(); tick();
-    }
+    if (w.type === "sight") import("./sight.js").then((m) => m.mount($(".fpw", root)));
     if (w.type === "breath") $("#bGo").onclick = startBreath;
     if (w.type === "rules") root.onclick = (e) => {
       const b = e.target.closest(".rule"); if (!b) return;

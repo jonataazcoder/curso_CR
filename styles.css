@@ -371,3 +371,19 @@ h1 span{color:var(--amber);display:inline-block}
 .scen .opts{margin-top:12px}
 .scen-end{display:grid;gap:8px;justify-items:start}
 .scen-end b{font:700 26px var(--head);text-transform:uppercase;color:var(--amber)}
+
+/* ===== estande virtual (visada em 1ª pessoa) ===== */
+.fp{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;display:grid;gap:10px}
+.fp-hud{display:flex;gap:18px;justify-content:center;font-size:14px;color:var(--muted)}
+.fp-hud b{color:var(--amber);font:700 18px var(--head)}
+.fp-stage{position:relative;border-radius:10px;overflow:hidden}
+.fp-stage canvas{display:block;width:100%;touch-action:none;cursor:grab}
+.fp-stage canvas:active{cursor:grabbing}
+.fp-tip{position:absolute;left:50%;bottom:14px;translate:-50% 0;background:rgba(0,0,0,.65);color:#fff;font-size:13px;padding:6px 12px;border-radius:999px;pointer-events:none;animation:up .4s both}
+.fp-status{text-align:center;font-weight:600;color:var(--bad);min-height:24px}
+.fp-status.mid{color:var(--amber)}.fp-status.ok{color:var(--ok)}
+.fp-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fp-btns .btn{padding:16px;font-size:16px;user-select:none;-webkit-user-select:none;touch-action:none}
+.fp-breath.on{background:var(--ok);border-color:var(--ok);color:#06210f}
+.fp-names{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--muted);justify-content:center}
+.fp-names input{accent-color:var(--amber)}
