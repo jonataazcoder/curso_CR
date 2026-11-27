@@ -55,52 +55,68 @@ const solid = (draw, holes, depth, mat, bevel = 0.03) => {
   return new THREE.Mesh(g, mat);
 };
 
-// Revólver de armação média, no estilo dos revólveres .38 de 6 tiros (proporções genéricas).
+// Revólver .38 de 6 tiros, cano de 4" (armação média). Escala: 1 unidade ≈ 36 mm.
+// Referências: tambor Ø 37 mm × 40 mm, cano 102 mm, comprimento total ~230 mm,
+// cabo com ~45–50 mm de frente a trás e ~32 mm de espessura.
 function revolver() {
   const P = [];
   const add = (key, name, desc, explode, ...meshes) => { const g = new THREE.Group(); meshes.forEach((m) => g.add(m)); P.push({ key, name, desc, explode, group: g }); };
+  const FRAME_W = 0.62, GRIP_W = 0.7;
 
   const cyl = new THREE.Group();
-  cyl.add(cylX(0.52, 1.02, MAT.metal(), 48));
+  cyl.add(cylX(0.51, 1.1, MAT.metal(), 48));
   for (let k = 0; k < 6; k++) {
     const a = (k / 6) * Math.PI * 2;
-    const ch = cylX(0.11, 1.04, MAT.dark(), 16); ch.position.set(0, Math.cos(a) * 0.3, Math.sin(a) * 0.3); cyl.add(ch);
-    const fl = cylX(0.07, 0.62, MAT.dark(), 12); fl.position.set(-0.1, Math.cos(a + Math.PI / 6) * 0.475, Math.sin(a + Math.PI / 6) * 0.475); cyl.add(fl);
+    const ch = cylX(0.1, 1.12, MAT.dark(), 16); ch.position.set(0, Math.cos(a) * 0.3, Math.sin(a) * 0.3); cyl.add(ch);
+    const fl = cylX(0.065, 0.66, MAT.dark(), 12); fl.position.set(-0.12, Math.cos(a + Math.PI / 6) * 0.47, Math.sin(a + Math.PI / 6) * 0.47); cyl.add(fl);
   }
-  cyl.position.set(0.56, 0.98, 0);
+  cyl.position.set(0.6, 0.98, 0);
 
   add("cano", "Cano", "Tubo por onde o projétil sai. No revólver, fica à frente do tambor; a folga entre os dois solta gases e resíduos de chumbo.", [0.9, 0, 0],
-    at(cylX(0.18, 2.25, MAT.metal()), 2.53, 1.28), at(box(2.25, 0.1, 0.14, MAT.metal()), 2.53, 1.47),
-    solid((s) => { s.moveTo(1.4, 1.1); s.lineTo(3.55, 1.1); s.quadraticCurveTo(3.62, 1.0, 3.55, 0.92); s.lineTo(1.4, 0.82); s.lineTo(1.4, 1.1); }, null, 0.22, MAT.metal(), 0.02));
-  add("tambor", "Tambor (cilindro)", "Cilindro giratório que serve de carregador. Cada furo recebe um cartucho e funciona como câmara.", [0, 0, -1.1], cyl);
+    at(cylX(0.26, 2.85, MAT.metal(), 40), 2.93, 1.28),
+    solid((s) => { s.moveTo(1.5, 1.52); s.lineTo(4.3, 1.52); s.lineTo(4.3, 1.58); s.lineTo(1.5, 1.6); s.lineTo(1.5, 1.52); }, null, 0.18, MAT.metal(), 0.015),
+    solid((s) => { s.moveTo(2.45, 1.1); s.lineTo(2.85, 1.1); s.quadraticCurveTo(2.88, 0.86, 2.7, 0.82); s.lineTo(2.45, 0.86); s.lineTo(2.45, 1.1); }, null, 0.26, MAT.metal(), 0.02));
+  add("tambor", "Tambor (cilindro)", "Cilindro giratório que serve de carregador. Cada furo recebe um cartucho e funciona como câmara.", [0, 0, -1.2], cyl);
   add("armacao", "Armação", "A estrutura que une todas as peças. Repare na janela onde o tambor se encaixa.", [0, 0, 0],
     solid((s) => {
-      s.moveTo(-0.38, 1.66); s.lineTo(1.3, 1.66); s.quadraticCurveTo(1.44, 1.64, 1.46, 1.5);
-      s.lineTo(1.46, 0.6); s.quadraticCurveTo(1.44, 0.42, 1.25, 0.4); s.lineTo(-0.12, 0.4);
-      s.quadraticCurveTo(-0.3, 0.38, -0.44, 0.55); s.lineTo(-0.5, 1.1); s.quadraticCurveTo(-0.5, 1.6, -0.38, 1.66);
-    }, [(p) => { p.moveTo(0.02, 1.5); p.lineTo(1.12, 1.5); p.lineTo(1.12, 0.5); p.lineTo(0.02, 0.5); p.lineTo(0.02, 1.5); }], 0.42, MAT.metal(), 0.03));
-  add("cabo", "Cabo (empunhadura)", "Onde a mão forte segura, com os dedos atrás do tambor. O formato curvo encaixa na palma.", [-0.5, -0.7, 0],
-    curved((s) => {
-      s.moveTo(-0.14, 0.42); s.quadraticCurveTo(-0.2, -0.25, -0.4, -0.92); s.quadraticCurveTo(-0.5, -1.25, -0.8, -1.25);
-      s.quadraticCurveTo(-1.04, -1.22, -1.0, -0.95); s.quadraticCurveTo(-0.88, -0.25, -0.7, 0.5); s.quadraticCurveTo(-0.62, 0.92, -0.48, 1.08); s.lineTo(-0.46, 0.42); s.lineTo(-0.14, 0.42);
-    }, 0.3, MAT.grip(), 0.05),
-    ...panels((s) => { s.moveTo(-0.3, 0.25); s.quadraticCurveTo(-0.35, -0.4, -0.5, -0.93); s.quadraticCurveTo(-0.62, -1.1, -0.8, -1.1); s.quadraticCurveTo(-0.92, -1.08, -0.9, -0.9); s.quadraticCurveTo(-0.8, -0.25, -0.62, 0.42); s.quadraticCurveTo(-0.54, 0.64, -0.46, 0.7); s.lineTo(-0.3, 0.25); }, 0.202, checker(0x3b2416)));
+      s.moveTo(-0.32, 1.66); s.lineTo(1.38, 1.66); s.quadraticCurveTo(1.52, 1.64, 1.54, 1.5);
+      s.lineTo(1.54, 0.62); s.quadraticCurveTo(1.52, 0.42, 1.3, 0.4); s.lineTo(-0.06, 0.4);
+      s.lineTo(-0.36, 0.5); s.lineTo(-0.42, 1.05); s.quadraticCurveTo(-0.44, 1.6, -0.32, 1.66);
+    }, [(p) => { p.moveTo(0.02, 1.5); p.lineTo(1.2, 1.5); p.lineTo(1.2, 0.5); p.lineTo(0.02, 0.5); p.lineTo(0.02, 1.5); }], FRAME_W, MAT.metal(), 0.03));
+
+  const gripOutline = (s) => {
+    s.moveTo(-0.06, 0.42);
+    s.quadraticCurveTo(-0.12, -0.5, -0.46, -1.8);
+    s.quadraticCurveTo(-0.55, -2.08, -0.84, -2.1);
+    s.lineTo(-1.36, -2.06);
+    s.quadraticCurveTo(-1.66, -2.02, -1.64, -1.74);
+    s.quadraticCurveTo(-1.4, -0.45, -0.98, 0.62);
+    s.quadraticCurveTo(-0.8, 1.1, -0.5, 1.2);
+    s.lineTo(-0.38, 1.05); s.lineTo(-0.34, 0.5); s.lineTo(-0.06, 0.42);
+  };
+  const gripPanel = (s) => {
+    s.moveTo(-0.3, 0.2); s.quadraticCurveTo(-0.38, -0.6, -0.62, -1.7); s.quadraticCurveTo(-0.7, -1.9, -0.9, -1.9);
+    s.lineTo(-1.32, -1.88); s.quadraticCurveTo(-1.48, -1.84, -1.46, -1.68); s.quadraticCurveTo(-1.24, -0.5, -0.88, 0.45);
+    s.quadraticCurveTo(-0.74, 0.8, -0.54, 0.86); s.lineTo(-0.3, 0.2);
+  };
+  add("cabo", "Cabo (empunhadura)", "Onde a mão forte segura, com todos os dedos atrás do tambor. Cabo de madeira com quadriculado para firmeza.", [-0.6, -0.8, 0],
+    curved(gripOutline, GRIP_W, MAT.grip(), 0.07), ...panels(gripPanel, GRIP_W / 2 + 0.073, checker(0x3b2416)));
   add("cao", "Cão", "Peça que, liberada pelo gatilho, bate no percussor. Pode ser armado com o polegar (ação simples).", [-0.6, 0.5, 0],
-    solid((s) => { s.moveTo(-0.42, 1.15); s.lineTo(-0.36, 1.62); s.quadraticCurveTo(-0.46, 1.78, -0.78, 1.82); s.quadraticCurveTo(-0.84, 1.74, -0.7, 1.66); s.quadraticCurveTo(-0.56, 1.5, -0.56, 1.15); s.lineTo(-0.42, 1.15); }, null, 0.14, MAT.dark(), 0.02));
+    solid((s) => { s.moveTo(-0.36, 1.08); s.lineTo(-0.3, 1.6); s.quadraticCurveTo(-0.42, 1.8, -0.86, 1.86); s.quadraticCurveTo(-0.92, 1.76, -0.72, 1.68); s.quadraticCurveTo(-0.54, 1.52, -0.52, 1.08); s.lineTo(-0.36, 1.08); }, null, 0.2, MAT.dark(), 0.025));
   add("gatilho", "Gatilho", "Tecla acionada pelo dedo. No revólver, costuma ficar mais perto da primeira dobra da falange.", [0, -0.6, 0.6],
-    solid((s) => { s.moveTo(0.22, 0.42); s.lineTo(0.38, 0.42); s.quadraticCurveTo(0.38, 0.18, 0.24, 0.1); s.quadraticCurveTo(0.18, 0.08, 0.18, 0.13); s.quadraticCurveTo(0.27, 0.24, 0.22, 0.42); }, null, 0.11, MAT.dark(), 0.02));
+    solid((s) => { s.moveTo(0.2, 0.42); s.lineTo(0.42, 0.42); s.quadraticCurveTo(0.42, 0.12, 0.24, 0.0); s.quadraticCurveTo(0.17, -0.03, 0.16, 0.03); s.quadraticCurveTo(0.27, 0.18, 0.2, 0.42); }, null, 0.16, MAT.dark(), 0.02));
   add("guardamato", "Guarda-mato", "Arco que protege o gatilho contra acionamento acidental.", [0.2, -0.8, 0],
-    solid((s) => { s.moveTo(-0.1, 0.42); s.quadraticCurveTo(-0.1, -0.02, 0.25, -0.04); s.quadraticCurveTo(0.78, -0.04, 0.8, 0.42); s.lineTo(-0.1, 0.42); },
-      [(p) => { p.moveTo(0.0, 0.38); p.quadraticCurveTo(0.0, 0.06, 0.25, 0.06); p.quadraticCurveTo(0.68, 0.06, 0.7, 0.38); p.lineTo(0.0, 0.38); }], 0.18, MAT.metal(), 0.02));
+    solid((s) => { s.moveTo(-0.08, 0.42); s.quadraticCurveTo(-0.08, -0.16, 0.3, -0.18); s.quadraticCurveTo(0.86, -0.18, 0.9, 0.42); s.lineTo(-0.08, 0.42); },
+      [(p) => { p.moveTo(0.04, 0.38); p.quadraticCurveTo(0.04, -0.06, 0.3, -0.07); p.quadraticCurveTo(0.76, -0.07, 0.78, 0.38); p.lineTo(0.04, 0.38); }], 0.22, MAT.metal(), 0.02));
   add("massa", "Massa de mira", "Elemento de pontaria na frente do cano. Deve ficar centralizada na alça.", [0.6, 0.6, 0],
-    solid((s) => { s.moveTo(3.3, 1.5); s.lineTo(3.55, 1.5); s.lineTo(3.55, 1.72); s.quadraticCurveTo(3.45, 1.7, 3.3, 1.5); }, null, 0.07, MAT.sight(), 0.01));
+    solid((s) => { s.moveTo(3.82, 1.56); s.lineTo(4.24, 1.56); s.lineTo(4.24, 1.8); s.quadraticCurveTo(4.06, 1.78, 3.82, 1.56); }, null, 0.09, MAT.sight(), 0.01));
   add("alca", "Alça de mira", "Entalhe na parte de trás da armação. A massa aparece no meio dela na visada.", [-0.4, 0.6, 0],
-    at(box(0.12, 0.12, 0.09, MAT.sight()), -0.25, 1.71, 0.1), at(box(0.12, 0.12, 0.09, MAT.sight()), -0.25, 1.71, -0.1));
+    at(box(0.16, 0.12, 0.11, MAT.sight()), -0.18, 1.72, 0.1), at(box(0.16, 0.12, 0.11, MAT.sight()), -0.18, 1.72, -0.1));
   add("vareta", "Vareta do extrator", "Empurrada para trás com o tambor aberto, expulsa os estojos vazios.", [0.4, -0.6, 0],
-    at(cylX(0.06, 1.2, MAT.metal()), 1.95, 0.86));
-  add("pedal", "Pedal (trava) do tambor", "Botão que libera o tambor para abrir de lado e carregar ou descarregar.", [-0.2, 0, -0.7],
-    solid((s) => { s.moveTo(-0.32, 1.12); s.lineTo(-0.02, 1.12); s.lineTo(-0.02, 1.24); s.lineTo(-0.32, 1.28); s.lineTo(-0.32, 1.12); }, null, 0.05, MAT.dark(), 0.01));
-  P.find((p) => p.key === "pedal").group.position.z = -0.24;
+    at(cylX(0.07, 1.3, MAT.metal()), 1.95, 0.96));
+  add("pedal", "Pedal (trava) do tambor", "Botão no lado esquerdo que libera o tambor para abrir e carregar ou descarregar.", [-0.2, 0, -0.7],
+    solid((s) => { s.moveTo(-0.3, 1.1); s.lineTo(0.0, 1.1); s.lineTo(0.0, 1.24); s.lineTo(-0.3, 1.28); s.lineTo(-0.3, 1.1); }, null, 0.06, MAT.dark(), 0.012));
+  P.find((p) => p.key === "pedal").group.position.z = -(FRAME_W / 2 + 0.05);
   return P;
 }
 
@@ -140,8 +156,8 @@ function pistola() {
     s.quadraticCurveTo(-0.7, 0.3, -0.66, 0.64);
   };
   add("cabo", "Cabo (empunhadura)", "Onde a mão forte segura; a mão fraca apoia com o polegar estendido. O carregador entra por baixo dele.", [-0.15, -0.35, 0],
-    curved(gripOuter, 0.36, MAT.poly(), 0.045),
-    ...panels((s) => { s.moveTo(-0.86, 0.42); s.lineTo(-1.82, 0.42); s.quadraticCurveTo(-1.98, -0.2, -2.16, -0.95); s.quadraticCurveTo(-2.18, -1.06, -2.08, -1.07); s.lineTo(-1.45, -1.07); s.quadraticCurveTo(-1.18, -0.4, -0.98, 0.05); s.quadraticCurveTo(-0.9, 0.25, -0.86, 0.42); }, 0.227, checker(0x1d1f23)));
+    curved(gripOuter, 0.44, MAT.poly(), 0.045),
+    ...panels((s) => { s.moveTo(-0.86, 0.42); s.lineTo(-1.82, 0.42); s.quadraticCurveTo(-1.98, -0.2, -2.16, -0.95); s.quadraticCurveTo(-2.18, -1.06, -2.08, -1.07); s.lineTo(-1.45, -1.07); s.quadraticCurveTo(-1.18, -0.4, -0.98, 0.05); s.quadraticCurveTo(-0.9, 0.25, -0.86, 0.42); }, 0.267, checker(0x1d1f23)));
 
   const mag = new THREE.Group();
   mag.add(at(box(0.5, 1.95, 0.22, MAT.dark()), 0, 0));
@@ -187,7 +203,7 @@ export function mount(root, kind) {
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
-  camera.position.set(-1.8, 1.4, -6.6);
+  camera.position.set(-2.0, 1.4, -7.4);
   scene.add(new THREE.HemisphereLight(0xfff4e0, 0x202020, 1.6));
   const key = new THREE.DirectionalLight(0xffffff, 2.2); key.position.set(-4, 6, -6); scene.add(key);
   const rim = new THREE.DirectionalLight(0xf5a623, 1.2); rim.position.set(6, 2, 4); scene.add(rim);
