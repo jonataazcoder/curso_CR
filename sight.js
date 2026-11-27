@@ -124,12 +124,6 @@ export function mount(root) {
     ctx.lineTo(R.x + 86 * g, H + 10); ctx.lineTo(R.x - 86 * g, H + 10); ctx.closePath(); ctx.fill();
     ctx.fillStyle = "#fff"; [-1, 1].forEach((k) => { ctx.beginPath(); ctx.arc(R.x + k * 34 * g, ry + 14 * g, 3 * g, 0, 7); ctx.fill(); });
     ctx.fillStyle = "#2c2e31"; for (let i = 0; i < 7; i++) ctx.fillRect(R.x - 70 * g, ry + 40 * g + i * 7 * g, 140 * g, 2.5 * g);
-    // mãos
-    ctx.fillStyle = "#b9845b";
-    ctx.beginPath(); ctx.ellipse(R.x - 92 * g, R.y + 120 * g - kick, 48 * g, 80 * g, 0.25, 0, 7); ctx.fill();
-    ctx.beginPath(); ctx.ellipse(R.x + 92 * g, R.y + 120 * g - kick, 48 * g, 80 * g, -0.25, 0, 7); ctx.fill();
-    ctx.fillStyle = "#a27150";
-    ctx.beginPath(); ctx.ellipse(R.x - 40 * g, R.y + 70 * g - kick, 14 * g, 34 * g, 0.6, 0, 7); ctx.fill();
     // nomes
     if (names) {
       label(R.x + 40 * s, ry - 18 * s, "ALÇA", R.x + 18 * s, ry + 6 * s);
