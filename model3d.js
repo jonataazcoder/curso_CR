@@ -19,6 +19,31 @@ const extrude = (pts, depth, m, bevel = 0.04) => {
   g.translate(0, 0, -depth / 2);
   return new THREE.Mesh(g, m);
 };
+const curved = (draw, depth, mat, bevel = 0.06) => {
+  const s = new THREE.Shape(); draw(s);
+  const g = new THREE.ExtrudeGeometry(s, { depth, bevelEnabled: true, bevelThickness: bevel, bevelSize: bevel, bevelSegments: 5, curveSegments: 24 });
+  g.translate(0, 0, -depth / 2);
+  return new THREE.Mesh(g, mat);
+};
+let checkerTex = null;
+const checker = (base) => {
+  if (!checkerTex) {
+    const c = document.createElement("canvas"); c.width = c.height = 64;
+    const x = c.getContext("2d"); x.fillStyle = "#808080"; x.fillRect(0, 0, 64, 64);
+    x.strokeStyle = "#ffffff"; x.lineWidth = 3;
+    for (let i = -64; i < 128; i += 10) { x.beginPath(); x.moveTo(i, 0); x.lineTo(i + 64, 64); x.stroke(); x.beginPath(); x.moveTo(i, 64); x.lineTo(i + 64, 0); x.stroke(); }
+    checkerTex = new THREE.CanvasTexture(c); checkerTex.wrapS = checkerTex.wrapT = THREE.RepeatWrapping; checkerTex.repeat.set(3, 3);
+  }
+  return new THREE.MeshStandardMaterial({ color: base, roughness: 0.9, metalness: 0.05, bumpMap: checkerTex, bumpScale: 2.5, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2 });
+};
+// painel lateral (uma face de cada lado) para dar textura à empunhadura
+const panels = (draw, z, mat) => [-1, 1].map((sgn) => {
+  const s = new THREE.Shape(); draw(s);
+  const g = new THREE.ShapeGeometry(s, 24);
+  const uv = g.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * 1.2, uv.getY(i) * 1.2);
+  const mesh = new THREE.Mesh(g, mat); mesh.position.z = sgn * z; if (sgn < 0) mesh.scale.z = -1;
+  return mesh;
+});
 const at = (mesh, x, y, z = 0, rz = 0) => { mesh.position.set(x, y, z); mesh.rotation.z = rz; return mesh; };
 
 function revolver() {
@@ -40,8 +65,22 @@ function revolver() {
   add("armacao", "Armação", "A estrutura que une todas as peças: segura o tambor, o cano e o cabo.", [0, 0, 0],
     at(box(1.75, 0.16, 0.5, MAT.metal()), 0.45, 1.56), at(box(0.38, 0.8, 0.5, MAT.metal()), 1.32, 1.18),
     at(box(1.9, 0.22, 0.5, MAT.metal()), 0.5, 0.3), at(box(0.32, 1.38, 0.5, MAT.metal()), -0.3, 0.93));
-  add("cabo", "Cabo (empunhadura)", "Onde a mão forte segura. Todos os dedos ficam atrás do tambor.", [-0.5, -0.7, 0],
-    extrude([[-0.45, 0.42], [0.02, 0.24], [-0.3, -1.45], [-1.05, -1.3], [-0.95, 0.38]], 0.5, MAT.grip()));
+  const revGrip = (s) => {
+    s.moveTo(-0.14, 0.32);
+    s.quadraticCurveTo(-0.2, -0.3, -0.42, -0.95);
+    s.quadraticCurveTo(-0.55, -1.32, -0.92, -1.3);
+    s.quadraticCurveTo(-1.22, -1.26, -1.18, -0.95);
+    s.quadraticCurveTo(-1.02, -0.2, -0.78, 0.55);
+    s.quadraticCurveTo(-0.66, 0.98, -0.46, 1.12);
+    s.lineTo(-0.46, 0.32);
+    s.lineTo(-0.14, 0.32);
+  };
+  const revPanel = (s) => {
+    s.moveTo(-0.3, 0.2); s.quadraticCurveTo(-0.38, -0.4, -0.55, -0.95); s.quadraticCurveTo(-0.7, -1.15, -0.92, -1.12);
+    s.quadraticCurveTo(-1.08, -1.1, -1.04, -0.9); s.quadraticCurveTo(-0.9, -0.2, -0.68, 0.45); s.quadraticCurveTo(-0.55, 0.7, -0.46, 0.75); s.lineTo(-0.3, 0.2);
+  };
+  add("cabo", "Cabo (empunhadura)", "Onde a mão forte segura, com os dedos atrás do tambor. O formato curvo encaixa na palma.", [-0.5, -0.7, 0],
+    curved(revGrip, 0.44, MAT.grip(), 0.07), ...panels(revPanel, 0.295, checker(0x3b2416)));
   add("cao", "Cão", "Peça que, liberada pelo gatilho, bate no percussor. Pode ser armado com o polegar (ação simples).", [-0.6, 0.5, 0],
     at(box(0.24, 0.42, 0.16, MAT.dark()), -0.55, 1.42, 0, 0.35), at(box(0.3, 0.1, 0.2, MAT.dark()), -0.72, 1.65, 0, 0.5));
   add("gatilho", "Gatilho", "Tecla acionada pelo dedo. No revólver, costuma ficar mais perto da primeira dobra da falange.", [0, -0.6, 0.6],
@@ -82,16 +121,33 @@ function pistola() {
     extrude([[-1.66, 0.62], [-1.66, 1.0], [1.9, 1.0], [1.9, 0.7], [0.75, 0.62], [-0.42, 0.62]], 0.5, MAT.poly(), 0.025));
 
   // Cabo: começa exatamente sob a armação, sem fresta
+  const pisGrip = (s) => {
+    s.moveTo(-0.44, 0.64);
+    s.lineTo(-1.62, 0.64);
+    s.quadraticCurveTo(-1.74, 0.5, -1.72, 0.3);
+    s.quadraticCurveTo(-1.86, -0.35, -1.98, -1.12);
+    s.quadraticCurveTo(-2.0, -1.3, -1.82, -1.32);
+    s.lineTo(-1.02, -1.36);
+    s.quadraticCurveTo(-0.9, -1.36, -0.92, -1.22);
+    s.quadraticCurveTo(-0.86, -1.0, -0.8, -0.86);
+    s.quadraticCurveTo(-0.74, -0.68, -0.7, -0.52);
+    s.quadraticCurveTo(-0.64, -0.36, -0.6, -0.2);
+    s.quadraticCurveTo(-0.52, 0.2, -0.44, 0.64);
+  };
+  const pisPanel = (s) => {
+    s.moveTo(-0.66, 0.4); s.lineTo(-1.56, 0.4); s.quadraticCurveTo(-1.66, -0.3, -1.8, -1.02);
+    s.quadraticCurveTo(-1.8, -1.14, -1.68, -1.15); s.lineTo(-1.08, -1.18); s.quadraticCurveTo(-1.0, -0.6, -0.86, -0.2); s.quadraticCurveTo(-0.72, 0.15, -0.66, 0.4);
+  };
   add("cabo", "Cabo (empunhadura)", "Onde a mão forte segura; a mão fraca apoia com o polegar estendido. O carregador entra por baixo dele.", [-0.15, -0.35, 0],
-    extrude([[-1.66, 0.64], [-0.42, 0.64], [-0.78, -1.3], [-1.86, -1.18], [-1.78, 0.2]], 0.52, MAT.poly(), 0.035));
+    curved(pisGrip, 0.46, MAT.poly(), 0.06), ...panels(pisPanel, 0.292, checker(0x1d1f23)));
 
   // Carregador: segue a inclinação do cabo; só a base aparece embaixo
-  const ang = -Math.atan(0.28 / 1.88);
+  const ang = -Math.atan(0.42 / 1.95);
   const mag = new THREE.Group();
   mag.add(at(box(0.6, 2.0, 0.3, MAT.dark()), 0, 0));
   mag.add(at(box(0.74, 0.14, 0.4, MAT.poly()), -0.03, -1.05));
   mag.add(at(box(0.5, 0.06, 0.2, MAT.sight()), 0, 0.98));
-  mag.position.set(-1.19, -0.36, 0); mag.rotation.z = ang;
+  mag.position.set(-1.3, -0.38, 0); mag.rotation.z = ang;
   add("carregador", "Carregador", "Peça removível com corpo, mola, transportador e base. Guarda os cartuchos em fila e entra pelo cabo.", [-0.3, -1.8, 0], mag);
 
   add("gatilho", "Gatilho", "Na pistola, fica no meio da primeira falange do indicador.", [0, -0.4, 0.7],
