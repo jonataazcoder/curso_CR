@@ -46,127 +46,130 @@ const panels = (draw, z, mat) => [-1, 1].map((sgn) => {
 });
 const at = (mesh, x, y, z = 0, rz = 0) => { mesh.position.set(x, y, z); mesh.rotation.z = rz; return mesh; };
 
+// Sólido extrudado a partir de um contorno desenhado com curvas, com furos opcionais.
+const solid = (draw, holes, depth, mat, bevel = 0.03) => {
+  const s = new THREE.Shape(); draw(s);
+  (holes || []).forEach((h) => { const p = new THREE.Path(); h(p); s.holes.push(p); });
+  const g = new THREE.ExtrudeGeometry(s, { depth, bevelEnabled: bevel > 0, bevelThickness: bevel, bevelSize: bevel, bevelSegments: 4, curveSegments: 28 });
+  g.translate(0, 0, -depth / 2);
+  return new THREE.Mesh(g, mat);
+};
+
+// Revólver de armação média, no estilo dos revólveres .38 de 6 tiros (proporções genéricas).
 function revolver() {
   const P = [];
   const add = (key, name, desc, explode, ...meshes) => { const g = new THREE.Group(); meshes.forEach((m) => g.add(m)); P.push({ key, name, desc, explode, group: g }); };
 
   const cyl = new THREE.Group();
-  cyl.add(cylX(0.56, 1.1, MAT.metal(), 48));
+  cyl.add(cylX(0.52, 1.02, MAT.metal(), 48));
   for (let k = 0; k < 6; k++) {
     const a = (k / 6) * Math.PI * 2;
-    const ch = cylX(0.12, 1.12, MAT.dark(), 16); ch.position.set(0, Math.cos(a) * 0.32, Math.sin(a) * 0.32); cyl.add(ch);
-    const fl = cylX(0.07, 0.8, MAT.dark(), 10); fl.position.set(0, Math.cos(a + Math.PI / 6) * 0.55, Math.sin(a + Math.PI / 6) * 0.55); cyl.add(fl);
+    const ch = cylX(0.11, 1.04, MAT.dark(), 16); ch.position.set(0, Math.cos(a) * 0.3, Math.sin(a) * 0.3); cyl.add(ch);
+    const fl = cylX(0.07, 0.62, MAT.dark(), 12); fl.position.set(-0.1, Math.cos(a + Math.PI / 6) * 0.475, Math.sin(a + Math.PI / 6) * 0.475); cyl.add(fl);
   }
-  cyl.position.set(0.55, 0.92, 0);
+  cyl.position.set(0.56, 0.98, 0);
 
   add("cano", "Cano", "Tubo por onde o projétil sai. No revólver, fica à frente do tambor; a folga entre os dois solta gases e resíduos de chumbo.", [0.9, 0, 0],
-    at(cylX(0.19, 2.9, MAT.metal()), 2.75, 1.24), at(box(2.9, 0.12, 0.16, MAT.metal()), 2.75, 1.45));
+    at(cylX(0.18, 2.25, MAT.metal()), 2.53, 1.28), at(box(2.25, 0.1, 0.14, MAT.metal()), 2.53, 1.47),
+    solid((s) => { s.moveTo(1.4, 1.1); s.lineTo(3.55, 1.1); s.quadraticCurveTo(3.62, 1.0, 3.55, 0.92); s.lineTo(1.4, 0.82); s.lineTo(1.4, 1.1); }, null, 0.22, MAT.metal(), 0.02));
   add("tambor", "Tambor (cilindro)", "Cilindro giratório que serve de carregador. Cada furo recebe um cartucho e funciona como câmara.", [0, 0, 1.1], cyl);
-  add("armacao", "Armação", "A estrutura que une todas as peças: segura o tambor, o cano e o cabo.", [0, 0, 0],
-    at(box(1.75, 0.16, 0.5, MAT.metal()), 0.45, 1.56), at(box(0.38, 0.8, 0.5, MAT.metal()), 1.32, 1.18),
-    at(box(1.9, 0.22, 0.5, MAT.metal()), 0.5, 0.3), at(box(0.32, 1.38, 0.5, MAT.metal()), -0.3, 0.93));
-  const revGrip = (s) => {
-    s.moveTo(-0.15, 0.32);
-    s.quadraticCurveTo(-0.22, -0.3, -0.42, -0.95);
-    s.quadraticCurveTo(-0.52, -1.27, -0.82, -1.27);
-    s.quadraticCurveTo(-1.06, -1.24, -1.02, -0.97);
-    s.quadraticCurveTo(-0.9, -0.25, -0.72, 0.5);
-    s.quadraticCurveTo(-0.62, 0.95, -0.46, 1.1);
-    s.lineTo(-0.46, 0.32);
-    s.lineTo(-0.15, 0.32);
-  };
-  const revPanel = (s) => {
-    s.moveTo(-0.3, 0.2); s.quadraticCurveTo(-0.36, -0.4, -0.52, -0.95); s.quadraticCurveTo(-0.64, -1.12, -0.82, -1.12);
-    s.quadraticCurveTo(-0.94, -1.1, -0.92, -0.92); s.quadraticCurveTo(-0.82, -0.25, -0.64, 0.42); s.quadraticCurveTo(-0.54, 0.66, -0.46, 0.72); s.lineTo(-0.3, 0.2);
-  };
+  add("armacao", "Armação", "A estrutura que une todas as peças. Repare na janela onde o tambor se encaixa.", [0, 0, 0],
+    solid((s) => {
+      s.moveTo(-0.38, 1.66); s.lineTo(1.3, 1.66); s.quadraticCurveTo(1.44, 1.64, 1.46, 1.5);
+      s.lineTo(1.46, 0.6); s.quadraticCurveTo(1.44, 0.42, 1.25, 0.4); s.lineTo(-0.12, 0.4);
+      s.quadraticCurveTo(-0.3, 0.38, -0.44, 0.55); s.lineTo(-0.5, 1.1); s.quadraticCurveTo(-0.5, 1.6, -0.38, 1.66);
+    }, [(p) => { p.moveTo(0.02, 1.5); p.lineTo(1.12, 1.5); p.lineTo(1.12, 0.5); p.lineTo(0.02, 0.5); p.lineTo(0.02, 1.5); }], 0.42, MAT.metal(), 0.03));
   add("cabo", "Cabo (empunhadura)", "Onde a mão forte segura, com os dedos atrás do tambor. O formato curvo encaixa na palma.", [-0.5, -0.7, 0],
-    curved(revGrip, 0.3, MAT.grip(), 0.05), ...panels(revPanel, 0.202, checker(0x3b2416)));
+    curved((s) => {
+      s.moveTo(-0.14, 0.42); s.quadraticCurveTo(-0.2, -0.25, -0.4, -0.92); s.quadraticCurveTo(-0.5, -1.25, -0.8, -1.25);
+      s.quadraticCurveTo(-1.04, -1.22, -1.0, -0.95); s.quadraticCurveTo(-0.88, -0.25, -0.7, 0.5); s.quadraticCurveTo(-0.62, 0.92, -0.48, 1.08); s.lineTo(-0.46, 0.42); s.lineTo(-0.14, 0.42);
+    }, 0.3, MAT.grip(), 0.05),
+    ...panels((s) => { s.moveTo(-0.3, 0.25); s.quadraticCurveTo(-0.35, -0.4, -0.5, -0.93); s.quadraticCurveTo(-0.62, -1.1, -0.8, -1.1); s.quadraticCurveTo(-0.92, -1.08, -0.9, -0.9); s.quadraticCurveTo(-0.8, -0.25, -0.62, 0.42); s.quadraticCurveTo(-0.54, 0.64, -0.46, 0.7); s.lineTo(-0.3, 0.25); }, 0.202, checker(0x3b2416)));
   add("cao", "Cão", "Peça que, liberada pelo gatilho, bate no percussor. Pode ser armado com o polegar (ação simples).", [-0.6, 0.5, 0],
-    at(box(0.24, 0.42, 0.16, MAT.dark()), -0.55, 1.42, 0, 0.35), at(box(0.3, 0.1, 0.2, MAT.dark()), -0.72, 1.65, 0, 0.5));
+    solid((s) => { s.moveTo(-0.42, 1.15); s.lineTo(-0.36, 1.62); s.quadraticCurveTo(-0.46, 1.78, -0.78, 1.82); s.quadraticCurveTo(-0.84, 1.74, -0.7, 1.66); s.quadraticCurveTo(-0.56, 1.5, -0.56, 1.15); s.lineTo(-0.42, 1.15); }, null, 0.14, MAT.dark(), 0.02));
   add("gatilho", "Gatilho", "Tecla acionada pelo dedo. No revólver, costuma ficar mais perto da primeira dobra da falange.", [0, -0.6, 0.6],
-    at(arc(0.26, 0.055, Math.PI * 0.55, MAT.dark()), 0.42, 0.1, 0, Math.PI * 0.62));
+    solid((s) => { s.moveTo(0.28, 0.42); s.lineTo(0.48, 0.42); s.quadraticCurveTo(0.48, 0.12, 0.3, 0.02); s.quadraticCurveTo(0.24, 0.0, 0.24, 0.06); s.quadraticCurveTo(0.33, 0.2, 0.28, 0.42); }, null, 0.12, MAT.dark(), 0.02));
   add("guardamato", "Guarda-mato", "Arco que protege o gatilho contra acionamento acidental.", [0.2, -0.8, 0],
-    at(arc(0.44, 0.055, Math.PI, MAT.metal()), 0.38, 0.22, 0, Math.PI));
+    solid((s) => { s.moveTo(-0.12, 0.42); s.quadraticCurveTo(-0.12, -0.12, 0.3, -0.14); s.quadraticCurveTo(0.9, -0.14, 0.95, 0.42); s.lineTo(-0.12, 0.42); },
+      [(p) => { p.moveTo(-0.02, 0.38); p.quadraticCurveTo(-0.02, -0.04, 0.3, -0.04); p.quadraticCurveTo(0.82, -0.04, 0.85, 0.38); p.lineTo(-0.02, 0.38); }], 0.2, MAT.metal(), 0.02));
   add("massa", "Massa de mira", "Elemento de pontaria na frente do cano. Deve ficar centralizada na alça.", [0.6, 0.6, 0],
-    at(box(0.2, 0.22, 0.07, MAT.sight()), 4.05, 1.6));
-  add("alca", "Alça de mira", "Entalhe na parte de trás da arma. A massa aparece no meio dela na visada.", [-0.4, 0.6, 0],
-    at(box(0.12, 0.14, 0.09, MAT.sight()), -0.2, 1.7, 0.12), at(box(0.12, 0.14, 0.09, MAT.sight()), -0.2, 1.7, -0.12));
+    solid((s) => { s.moveTo(3.3, 1.5); s.lineTo(3.55, 1.5); s.lineTo(3.55, 1.72); s.quadraticCurveTo(3.45, 1.7, 3.3, 1.5); }, null, 0.07, MAT.sight(), 0.01));
+  add("alca", "Alça de mira", "Entalhe na parte de trás da armação. A massa aparece no meio dela na visada.", [-0.4, 0.6, 0],
+    at(box(0.12, 0.12, 0.09, MAT.sight()), -0.25, 1.71, 0.1), at(box(0.12, 0.12, 0.09, MAT.sight()), -0.25, 1.71, -0.1));
   add("vareta", "Vareta do extrator", "Empurrada para trás com o tambor aberto, expulsa os estojos vazios.", [0.4, -0.6, 0],
-    at(cylX(0.065, 1.35, MAT.metal()), 1.95, 0.92));
+    at(cylX(0.06, 1.2, MAT.metal()), 1.95, 0.86));
   add("pedal", "Pedal (trava) do tambor", "Botão que libera o tambor para abrir de lado e carregar ou descarregar.", [-0.2, 0, 0.7],
-    at(box(0.24, 0.14, 0.08, MAT.dark()), 0.02, 1.18, 0.29));
+    solid((s) => { s.moveTo(-0.32, 1.12); s.lineTo(-0.02, 1.12); s.lineTo(-0.02, 1.24); s.lineTo(-0.32, 1.28); s.lineTo(-0.32, 1.12); }, null, 0.05, MAT.dark(), 0.01));
+  P.find((p) => p.key === "pedal").group.position.z = 0.24;
   return P;
 }
 
+// Pistola semiautomática de cão externo, proporções de uma pistola 9 mm de serviço.
 function pistola() {
   const P = [];
   const add = (key, name, desc, explode, ...meshes) => { const g = new THREE.Group(); meshes.forEach((m) => g.add(m)); P.push({ key, name, desc, explode, group: g }); };
-  const SIDE = 0.26; // face lateral esquerda da armação (comandos)
+  const SIDE = 0.235;
 
-  // Ferrolho: perfil com chanfro na frente e na traseira, serrilhas e janela de ejeção
   const slide = new THREE.Group();
-  slide.add(extrude([[-1.62, 1.0], [2.02, 1.0], [2.02, 1.46], [1.9, 1.58], [-1.5, 1.58], [-1.62, 1.48]], 0.46, MAT.metal(), 0.03));
-  for (let k = 0; k < 7; k++) {
-    slide.add(at(box(0.035, 0.44, 0.535, MAT.dark()), -1.42 + k * 0.08, 1.29));
-  }
-  slide.add(at(box(0.8, 0.26, 0.06, MAT.dark()), 0.55, 1.34, -0.25));
-  slide.add(at(cylX(0.11, 0.02, MAT.dark(), 24), 2.06, 1.29));
+  slide.add(solid((s) => {
+    s.moveTo(-1.96, 1.0); s.lineTo(1.7, 1.0); s.lineTo(1.7, 1.46); s.quadraticCurveTo(1.68, 1.58, 1.56, 1.6);
+    s.lineTo(-1.86, 1.6); s.quadraticCurveTo(-1.96, 1.58, -1.96, 1.48); s.lineTo(-1.96, 1.0);
+  }, null, 0.44, MAT.metal(), 0.03));
+  for (let k = 0; k < 8; k++) slide.add(at(box(0.03, 0.42, 0.52, MAT.dark()), -1.8 + k * 0.065, 1.3));
+  slide.add(at(box(0.72, 0.24, 0.05, MAT.dark()), 0.42, 1.36, -0.245));
+  slide.add(at(cylX(0.1, 0.03, MAT.dark(), 24), 1.73, 1.3));
   add("ferrolho", "Ferrolho", "Parte de cima que corre para trás a cada disparo: extrai e ejeta o estojo e leva o próximo cartucho à câmara. Do lado direito fica a janela de ejeção.", [0, 1.1, 0], slide);
 
-  add("cano", "Cano", "Na pistola, a câmara é única e faz parte do cano. Ele fica dentro do ferrolho; aqui aparece quando você separa as peças.", [0.2, 2.1, 0],
-    at(cylX(0.15, 2.5, MAT.dark()), 0.8, 1.29), at(box(0.62, 0.34, 0.34, MAT.dark()), -0.6, 1.29));
+  add("cano", "Cano", "Na pistola, a câmara é única e faz parte do cano. Ele fica dentro do ferrolho; aparece quando você separa as peças.", [0.2, 2.1, 0],
+    at(cylX(0.14, 2.35, MAT.dark()), 0.55, 1.3), at(box(0.55, 0.32, 0.32, MAT.dark()), -0.86, 1.3));
 
-  // Armação: parte superior do frame (trilho/guarda-pó) até a traseira
   add("armacao", "Armação", "Estrutura de baixo, onde se apoiam o ferrolho, o gatilho, o cabo e os comandos.", [0, 0, 0],
-    extrude([[-1.66, 0.62], [-1.66, 1.0], [1.9, 1.0], [1.9, 0.7], [0.75, 0.62], [-0.42, 0.62]], 0.5, MAT.poly(), 0.025));
+    solid((s) => {
+      s.moveTo(1.55, 1.0); s.lineTo(-1.9, 1.0); s.quadraticCurveTo(-2.12, 0.98, -2.1, 0.86);
+      s.quadraticCurveTo(-1.98, 0.8, -1.9, 0.62); s.lineTo(-0.66, 0.62); s.lineTo(1.5, 0.62);
+      s.quadraticCurveTo(1.56, 0.64, 1.56, 0.72); s.lineTo(1.55, 1.0);
+    }, null, 0.42, MAT.poly(), 0.025));
 
-  // Cabo: começa exatamente sob a armação, sem fresta
-  const pisGrip = (s) => {
-    s.moveTo(-0.5, 0.64);
-    s.lineTo(-1.56, 0.64);
-    s.quadraticCurveTo(-1.66, 0.5, -1.64, 0.3);
-    s.quadraticCurveTo(-1.74, -0.35, -1.84, -1.12);
-    s.quadraticCurveTo(-1.86, -1.3, -1.7, -1.31);
-    s.lineTo(-1.14, -1.34);
-    s.quadraticCurveTo(-1.02, -1.34, -1.04, -1.2);
-    s.quadraticCurveTo(-0.96, -0.98, -0.9, -0.84);
-    s.quadraticCurveTo(-0.82, -0.66, -0.78, -0.5);
-    s.quadraticCurveTo(-0.7, -0.34, -0.66, -0.2);
-    s.quadraticCurveTo(-0.57, 0.2, -0.5, 0.64);
-  };
-  const pisPanel = (s) => {
-    s.moveTo(-0.72, 0.4); s.lineTo(-1.5, 0.4); s.quadraticCurveTo(-1.58, -0.3, -1.7, -1.02);
-    s.quadraticCurveTo(-1.7, -1.14, -1.6, -1.15); s.lineTo(-1.18, -1.18); s.quadraticCurveTo(-1.1, -0.6, -0.94, -0.2); s.quadraticCurveTo(-0.79, 0.15, -0.72, 0.4);
+  const gripOuter = (s) => {
+    s.moveTo(-0.66, 0.64); s.lineTo(-1.9, 0.64);
+    s.quadraticCurveTo(-2.06, 0.1, -2.26, -0.6);
+    s.quadraticCurveTo(-2.36, -1.0, -2.34, -1.1); s.quadraticCurveTo(-2.32, -1.2, -2.2, -1.2);
+    s.lineTo(-1.38, -1.2); s.quadraticCurveTo(-1.28, -1.19, -1.3, -1.08);
+    s.quadraticCurveTo(-1.2, -0.92, -1.17, -0.8); s.quadraticCurveTo(-1.08, -0.66, -1.04, -0.52);
+    s.quadraticCurveTo(-0.95, -0.38, -0.92, -0.25); s.quadraticCurveTo(-0.84, -0.1, -0.8, 0.05);
+    s.quadraticCurveTo(-0.7, 0.3, -0.66, 0.64);
   };
   add("cabo", "Cabo (empunhadura)", "Onde a mão forte segura; a mão fraca apoia com o polegar estendido. O carregador entra por baixo dele.", [-0.15, -0.35, 0],
-    curved(pisGrip, 0.34, MAT.poly(), 0.05), ...panels(pisPanel, 0.222, checker(0x1d1f23)));
+    curved(gripOuter, 0.36, MAT.poly(), 0.045),
+    ...panels((s) => { s.moveTo(-0.86, 0.42); s.lineTo(-1.82, 0.42); s.quadraticCurveTo(-1.98, -0.2, -2.16, -0.95); s.quadraticCurveTo(-2.18, -1.06, -2.08, -1.07); s.lineTo(-1.45, -1.07); s.quadraticCurveTo(-1.18, -0.4, -0.98, 0.05); s.quadraticCurveTo(-0.9, 0.25, -0.86, 0.42); }, 0.227, checker(0x1d1f23)));
 
-  // Carregador: segue a inclinação do cabo; só a base aparece embaixo
-  const ang = -Math.atan(0.4 / 1.95);
   const mag = new THREE.Group();
-  mag.add(at(box(0.48, 2.0, 0.22, MAT.dark()), 0, 0));
-  mag.add(at(box(0.6, 0.12, 0.32, MAT.poly()), -0.02, -1.04));
-  mag.add(at(box(0.4, 0.06, 0.16, MAT.sight()), 0, 0.98));
-  mag.position.set(-1.24, -0.4, 0); mag.rotation.z = ang;
+  mag.add(at(box(0.5, 1.95, 0.22, MAT.dark()), 0, 0));
+  mag.add(solid((s) => { s.moveTo(-0.32, -0.94); s.lineTo(0.3, -0.94); s.quadraticCurveTo(0.36, -1.06, 0.26, -1.08); s.lineTo(-0.34, -1.08); s.quadraticCurveTo(-0.4, -1.0, -0.32, -0.94); }, null, 0.3, MAT.poly(), 0.02));
+  mag.add(at(box(0.4, 0.05, 0.16, MAT.sight()), 0, 0.96));
+  mag.position.set(-1.56, -0.25, 0); mag.rotation.z = -0.335;
   add("carregador", "Carregador", "Peça removível com corpo, mola, transportador e base. Guarda os cartuchos em fila e entra pelo cabo.", [-0.3, -1.8, 0], mag);
 
   add("gatilho", "Gatilho", "Na pistola, fica no meio da primeira falange do indicador.", [0, -0.4, 0.7],
-    at(arc(0.26, 0.055, Math.PI * 0.55, MAT.dark()), 0.02, 0.36, 0, Math.PI * 0.62));
+    solid((s) => { s.moveTo(-0.02, 0.62); s.lineTo(0.14, 0.62); s.quadraticCurveTo(0.17, 0.34, 0.02, 0.2); s.quadraticCurveTo(-0.04, 0.16, -0.06, 0.22); s.quadraticCurveTo(0.03, 0.38, -0.02, 0.62); }, null, 0.11, MAT.dark(), 0.02));
   add("guardamato", "Guarda-mato", "Arco que protege o gatilho contra acionamento acidental.", [0.2, -0.7, 0],
-    at(arc(0.5, 0.065, Math.PI, MAT.poly()), 0.15, 0.64, 0, Math.PI), at(box(1.0, 0.1, 0.13, MAT.poly()), 0.15, 0.14));
+    solid((s) => { s.moveTo(-0.7, 0.62); s.quadraticCurveTo(-0.62, 0.06, -0.38, 0.02); s.lineTo(0.62, 0.02); s.quadraticCurveTo(0.9, 0.06, 0.92, 0.36); s.lineTo(0.94, 0.62); s.lineTo(-0.7, 0.62); },
+      [(p) => { p.moveTo(-0.52, 0.6); p.quadraticCurveTo(-0.48, 0.16, -0.32, 0.14); p.lineTo(0.58, 0.14); p.quadraticCurveTo(0.78, 0.18, 0.8, 0.38); p.lineTo(0.8, 0.6); p.lineTo(-0.52, 0.6); }], 0.36, MAT.poly(), 0.02));
   add("cao", "Cão", "Liberado pelo gatilho, bate no percussor, que atinge a espoleta.", [-0.6, 0.4, 0],
-    at(box(0.18, 0.3, 0.2, MAT.dark()), -1.72, 1.12, 0, 0.35), at(box(0.14, 0.1, 0.2, MAT.dark()), -1.8, 1.28, 0, 0.35));
-  add("massa", "Massa de mira", "Elemento de pontaria na frente do ferrolho.", [0.4, 0.5, 0], at(box(0.14, 0.14, 0.08, MAT.sight()), 1.78, 1.65));
+    solid((s) => { s.moveTo(-1.9, 1.02); s.lineTo(-1.92, 1.36); s.quadraticCurveTo(-2.02, 1.5, -2.2, 1.48); s.quadraticCurveTo(-2.22, 1.38, -2.08, 1.3); s.lineTo(-2.04, 1.02); s.lineTo(-1.9, 1.02); }, null, 0.14, MAT.dark(), 0.02));
+  add("massa", "Massa de mira", "Elemento de pontaria na frente do ferrolho.", [0.4, 0.5, 0],
+    solid((s) => { s.moveTo(1.42, 1.6); s.lineTo(1.6, 1.6); s.lineTo(1.58, 1.72); s.lineTo(1.46, 1.72); s.lineTo(1.42, 1.6); }, null, 0.08, MAT.sight(), 0.01));
   add("alca", "Alça de mira", "Entalhe na parte de trás do ferrolho; a massa aparece no meio dela.", [-0.4, 0.5, 0],
-    at(box(0.16, 0.15, 0.11, MAT.sight()), -1.4, 1.65, 0.12), at(box(0.16, 0.15, 0.11, MAT.sight()), -1.4, 1.65, -0.12));
+    at(box(0.16, 0.14, 0.11, MAT.sight()), -1.7, 1.67, 0.12), at(box(0.16, 0.14, 0.11, MAT.sight()), -1.7, 1.67, -0.12));
   add("retemcarregador", "Retém do carregador", "Botão logo atrás do guarda-mato que solta o carregador.", [0, 0, 0.7],
-    at(new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.08, 20).rotateX(Math.PI / 2), MAT.sight()), -0.5, 0.48, SIDE + 0.02));
+    at(new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.075, 0.06, 20).rotateX(Math.PI / 2), MAT.sight()), -0.84, 0.48, SIDE + 0.02));
   add("retemferrolho", "Retém do ferrolho", "Alavanca que trava o ferrolho aberto, por exemplo quando acaba a munição.", [0, 0.2, 0.7],
-    at(box(0.5, 0.07, 0.05, MAT.dark()), -0.15, 0.93, SIDE + 0.02));
+    solid((s) => { s.moveTo(-0.6, 0.9); s.lineTo(0.05, 0.88); s.quadraticCurveTo(0.1, 0.8, 0.02, 0.78); s.lineTo(-0.6, 0.8); s.lineTo(-0.6, 0.9); }, null, 0.04, MAT.dark(), 0.01));
   add("alavanca", "Alavanca de desmontagem", "Usada para desmontar a pistola em 1º escalão, para limpeza.", [0.3, 0, 0.7],
-    at(box(0.24, 0.09, 0.05, MAT.dark()), 0.6, 0.85, SIDE + 0.02));
+    solid((s) => { s.moveTo(0.42, 0.9); s.lineTo(0.7, 0.9); s.quadraticCurveTo(0.76, 0.84, 0.7, 0.78); s.lineTo(0.42, 0.78); s.lineTo(0.42, 0.9); }, null, 0.04, MAT.dark(), 0.01));
   add("registro", "Registro de segurança", "Trava manual. É um dispositivo mecânico e não substitui o bom senso.", [-0.3, 0, 0.7],
-    at(box(0.24, 0.12, 0.05, MAT.sight()), -1.38, 0.88, SIDE + 0.02));
+    solid((s) => { s.moveTo(-1.74, 0.94); s.lineTo(-1.44, 0.92); s.quadraticCurveTo(-1.4, 0.84, -1.46, 0.8); s.lineTo(-1.74, 0.82); s.lineTo(-1.74, 0.94); }, null, 0.04, MAT.sight(), 0.01));
+  ["retemferrolho", "alavanca", "registro"].forEach((k) => (P.find((p) => p.key === k).group.position.z = SIDE));
   return P;
 }
 
