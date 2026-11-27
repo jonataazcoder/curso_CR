@@ -302,3 +302,37 @@ h1 span{color:var(--amber);display:inline-block}
   .flip .face{font-size:14px;padding:12px}
 }
 .flip .front i{display:block}
+
+/* ===== jogo de visada ===== */
+.sight-hud{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;font-size:14px;color:var(--muted)}
+.sight-hud b{color:var(--amber);font:700 18px var(--head)}
+#sgSvg{touch-action:none;cursor:grab;user-select:none;border:3px solid transparent;transition:border-color .2s}
+#sgSvg:active{cursor:grabbing}
+#sgSvg.aligned{border-color:var(--ok)}
+#sgSvg.aligned .rear{fill:#0f2a17}
+.sight .tgt.x{fill:#e8e4d8;stroke:none}
+.sight .hole{fill:#e5533d;stroke:#fff;stroke-width:1}
+.sight-btns{display:flex;justify-content:center;gap:10px}
+.sight .fire{font-size:17px;padding:14px 30px}
+.recoil{animation:recoil .25s}
+@keyframes recoil{30%{transform:translateY(-6px) rotate(-.6deg)}}
+
+/* ===== 3D ===== */
+.m3d{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;display:grid;gap:12px}
+.m3d-loading{color:var(--muted)!important;text-align:center;padding:60px 0;margin:0!important}
+.m3d-stage{position:relative;height:clamp(300px,48vh,460px);border-radius:12px;overflow:hidden;background:radial-gradient(ellipse at 50% 40%,#2a2b24,#121310 70%)}
+.m3d-stage canvas{width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+.m3d-label{position:absolute;left:0;top:0;pointer-events:none;padding:4px 10px;border-radius:999px;background:var(--amber);color:#1a1205;font:600 12px var(--font);white-space:nowrap;margin:-34px 0 0 0;translate:-50% 0}
+.m3d-hint{position:absolute;bottom:10px;left:50%;translate:-50% 0;font-size:12px;color:var(--muted);background:rgba(0,0,0,.4);padding:4px 10px;border-radius:999px;pointer-events:none}
+.m3d-info{min-height:76px}
+.m3d-info small{font-size:12px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+.m3d-info b{display:block;font:700 24px var(--head);text-transform:uppercase;color:var(--amber)}
+.m3d-info p{margin:2px 0 0!important;font-size:15px}
+.m3d-nav{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.m3d-ex{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:14px;color:var(--muted)}
+.m3d-ex input{accent-color:var(--amber);width:140px}
+.m3d-chips{display:flex;flex-wrap:wrap;gap:6px}
+.m3d-chips button{padding:6px 12px;border-radius:999px;background:var(--panel2);border:1px solid var(--line);font-size:13px}
+.m3d-chips button.on{background:var(--amber);color:#1a1205;border-color:var(--amber)}
+.m3d-note{font-size:12px;color:var(--muted)!important;margin:0!important}
+@media (max-width:600px){.m3d-ex{margin-left:0;width:100%}.m3d-ex input{flex:1}}
