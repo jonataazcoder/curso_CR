@@ -38,62 +38,80 @@ const CHAPTERS = [
     id: "seg", title: "Regras de Segurança", sub: "A base de tudo: cano, dedo, trava e bom senso", icon: "🛡️", cat: "seg",
     slides: [
       { kicker: "A regra de ouro", title: "Toda arma está carregada.",
-        body: `<p class="lead">Trate toda arma de fogo como se ela <strong>sempre</strong> estivesse carregada.</p>
-        <p>Todo manuseio, de qualquer arma, curta ou longa, tem que ser feito de forma absolutamente segura: na limpeza, no esporte, na defesa, no estande ou em casa. As regras valem em <strong>todas</strong> as situações, sem exceção.</p>`,
+        body: `<p class="lead">Trate toda arma de fogo como se ela <strong>sempre</strong> estivesse carregada. Mesmo que você tenha acabado de conferir.</p>
+        <p>Antes de qualquer coisa, um teste rápido: das situações abaixo, quais são seguras?</p>`,
+        widget: { type: "sorter", labels: ["✅ Seguro", "⚠️ Perigoso"], items: [
+          ["Conferir se a arma está descarregada logo depois de recebê-la.", 0, "Sempre confira você mesmo, mesmo que digam que está vazia."],
+          ["Apontar a arma “descarregada” para um amigo, de brincadeira.", 1, "A regra de ouro existe exatamente para isso: toda arma está carregada."],
+          ["Limpar a arma sem tirar o carregador porque “só vai passar um pano”.", 1, "Limpeza só com a arma comprovadamente descarregada."],
+        ] },
         tip: "“Ela estava descarregada” é a frase mais repetida em relatório de acidente." },
-      { kicker: "Cano e dedo", title: "Para onde aponta, onde fica o dedo",
-        body: `<ul>
-          <li>Só aponte a arma, carregada ou não, para onde pretende atirar.</li>
-          <li>Nunca aponte para direção que não ofereça segurança.</li>
-          <li>Mantenha o <strong>dedo estendido ao longo do corpo da arma</strong> até estar apontando para o alvo e pronto para o disparo.</li>
-          <li>Ao sacar ou coldrear, sempre com o dedo estendido.</li>
-          <li>Nunca engatilhe a arma se não for atirar.</li>
-          <li>Fora do coldre e empunhada, nunca aponte para o seu corpo ou para pessoas ao redor.</li>
-        </ul>`, img: "img/disparo-pistola.webp" },
-      { kicker: "Mão em mão", title: "Pegar, entregar, carregar",
-        body: `<ul>
-          <li>Nunca pegue ou receba uma arma com o cano apontado na sua direção.</li>
-          <li>Sempre <strong>entregue a arma descarregada</strong>.</li>
-          <li>Sempre que pegar uma arma, <strong>verifique se está realmente descarregada</strong>.</li>
-          <li>Carregue e descarregue com o cano apontado para direção segura.</li>
-          <li>Confira se a munição corresponde ao tamanho e ao calibre da arma.</li>
-          <li>Antes de qualquer limpeza, certifique-se de que está descarregada.</li>
-        </ul>`,
-        widget: { type: "choice", q: "Um amigo te entrega a arma dizendo: “pode pegar, tá vazia”. O que você faz?",
-          o: ["Verifico eu mesmo se está descarregada", "Confio, ele é experiente", "Puxo o gatilho pra conferir", "Olho pelo cano"],
-          e: "Sempre que pegar uma arma, verifique você mesmo se está realmente descarregada. Confiança não é procedimento." } },
+      { kicker: "Os 4 pilares", title: "Grave estas quatro regras",
+        body: `<p>Quase toda regra de segurança deriva destas quatro. Toque em cada uma para ver <strong>por quê</strong> e <strong>como fica na prática</strong>:</p>`,
+        widget: { type: "rules", items: [
+          ["🔫", "Toda arma está carregada", "Trate sempre como carregada, mesmo depois de conferir.", "Acidentes acontecem quando alguém “tinha certeza” de que estava vazia.", "Pegou uma arma? Verifique. Vai entregar? Entregue descarregada e aberta."],
+          ["🎯", "Cano para direção segura", "Só aponte para onde você pretende atirar.", "Se disparar sem querer, o projétil vai para um lugar sem pessoas.", "Ao carregar, descarregar, sacar e coldrear, o cano fica sempre para a direção segura."],
+          ["☝️", "Dedo fora do gatilho", "Dedo estendido ao longo da arma até a decisão de atirar.", "Um susto ou tropeço faz a mão fechar sozinha. Dedo fora = sem disparo acidental.", "No saque e no coldre, o dedo fica estendido. Só entra no gatilho com o alvo na mira."],
+          ["👀", "Conheça o alvo e o que está atrás", "O alvo e a área ao redor têm de receber o impacto com segurança.", "O projétil pode atravessar, errar ou ricochetear.", "Nunca atire em superfície plana e dura ou na água."],
+        ] } },
+      { kicker: "Situação real", title: "Pegar, conferir, entregar",
+        body: `<p>Vamos viver a cena. Escolha o que fazer em cada momento:</p>`,
+        widget: { type: "scenario", steps: [
+          ["Um colega vai te passar a pistola dele no estande. Ele estende a arma com o <strong>cano virado para você</strong>.", [
+            ["Pego rápido para não deixar ele esperando", false, "Nunca pegue ou receba uma arma com o cano apontado na sua direção."],
+            ["Peço para ele virar o cano para a direção segura antes de pegar", true, "Isso. Cano sempre para direção segura, inclusive na entrega."],
+          ]],
+          ["Ele vira a arma e diz: “pode pegar, tá descarregada”.", [
+            ["Confio e já começo a manusear", false, "Sempre que pegar uma arma, verifique você mesmo se está realmente descarregada."],
+            ["Pego com o cano para a direção segura e confiro: carregador fora e câmara vazia", true, "Perfeito. Confiança não é procedimento."],
+          ]],
+          ["Hora de devolver a arma para ele.", [
+            ["Entrego descarregada, com o cano para a direção segura", true, "É assim: sempre entregue a arma descarregada."],
+            ["Coloco um carregador de volta para ele já sair usando", false, "Sempre entregue descarregada. Quem recebe confere de novo."],
+          ]],
+        ] } },
       { kicker: "Travas e guarda", title: "Travas não pensam por você",
-        body: `<ul>
-          <li>As travas são <strong>dispositivos mecânicos</strong>, não substitutos do bom senso.</li>
-          <li>Nunca teste as travas acionando a tecla do gatilho.</li>
-          <li>Nunca transporte ou coldreie a arma com o <strong>cão armado</strong>.</li>
-          <li>Nunca deixe uma arma de forma descuidada.</li>
-          <li>Guarde <strong>armas e munições separadamente</strong>, fora do alcance de crianças.</li>
-        </ul>` },
+        body: `<p>A trava é um <strong>dispositivo mecânico</strong>: ajuda, mas pode falhar. Quem garante a segurança é você.</p>`,
+        widget: { type: "flip", cards: [
+          ["🔒 Testar a trava?", "<strong>Nunca</strong> teste a trava acionando o gatilho."],
+          ["🧲 Coldre e transporte", "Nunca transporte ou coldreie a arma com o <strong>cão armado</strong>."],
+          ["🏠 Guardar em casa", "<strong>Arma e munição separadas</strong>, fora do alcance de crianças."],
+          ["🛠️ Mexer na arma", "Nunca modifique a arma. Se precisar, só com <strong>armeiro qualificado</strong>."],
+        ] } },
       { kicker: "No estande e no campo", title: "Alvo, ricochete e proteção",
         body: `<ul>
-          <li>O alvo e a área ao redor precisam suportar os impactos com máxima segurança.</li>
           <li>Nunca atire em <strong>superfícies planas e duras ou na água</strong>: o projétil pode ricochetear.</li>
           <li>Sempre use <strong>óculos de proteção e abafador</strong>.</li>
-          <li>Revólveres soltam gases e resíduos de chumbo pela folga entre cano e tambor; pistolas e rifles ejetam estojos quentes para o lado. Mãos e pessoas longe dessas zonas.</li>
-        </ul>` },
-      { kicker: "Quando algo sai do normal", title: "Negou fogo? Recuo estranho?",
-        body: `<ul>
-          <li><strong>Negou fogo?</strong> Mantenha a arma apontada para o alvo por cerca de <strong>30 segundos</strong>: pode haver retardo de ignição.</li>
-          <li>Recuo ou som anormal? <strong>Pare</strong>, descarregue e verifique se há obstrução no cano. Qualquer coisa lá dentro (projétil, lama, terra, graxa) sai antes do próximo tiro.</li>
-          <li>Munição velha ou recarregada não é confiável e pode ser perigosa.</li>
-          <li>Nunca modifique a arma; se precisar, só com armeiro qualificado.</li>
+          <li>Revólver solta gases e chumbo pela folga entre cano e tambor; pistola e rifle ejetam <strong>estojos quentes</strong> para o lado. Mãos e pessoas longe dessas zonas.</li>
           <li>Nunca porte arma sob efeito de álcool, drogas ou medicamentos que reduzam a percepção.</li>
-        </ul>`,
+          <li>Munição velha ou recarregada não é confiável.</li>
+        </ul>`, img: "img/disparo-pistola.webp" },
+      { kicker: "Situação real", title: "Quando algo sai do normal",
+        body: `<p>Você está atirando e algo estranho acontece. O que fazer?</p>`,
+        widget: { type: "scenario", steps: [
+          ["Você aciona o gatilho e… <strong>click</strong>. Nada acontece.", [
+            ["Abro a arma na hora para ver o problema", false, "Pode ser retardo de ignição: o disparo pode acontecer com a arma aberta na sua mão."],
+            ["Mantenho a arma apontada para o alvo por cerca de 30 segundos", true, "Isso. Retardo de ignição existe; espere com a arma no alvo."],
+          ]],
+          ["No disparo seguinte, sai um <strong>“pof”</strong> fraco e o recuo foi bem menor.", [
+            ["Disparo de novo para desobstruir", false, "Perigo! Pode ser tiro chocho: o projétil ficou preso no cano e o próximo tiro pode explodir a arma."],
+            ["Paro, descarrego e verifico se há obstrução no cano", true, "Correto. Qualquer coisa no cano (projétil, lama, graxa) sai antes do próximo tiro."],
+          ]],
+        ] },
         tip: "Barulho de “pof” em vez de “BANG”? Desconfie. Pode ser tiro chocho e o projétil ficou no cano." },
-      { kicker: "Revisão rápida", title: "Certo ou errado?",
-        body: `<p>Marque cada afirmação. A explicação aparece na hora.</p>`,
-        widget: { type: "tf", items: [
-          ["A trava de segurança garante que a arma não vai disparar.", false, "Trava é dispositivo mecânico e pode falhar. Não substitui o bom senso."],
-          ["Armas e munições devem ser guardadas separadamente.", true, "E sempre fora do alcance de crianças."],
-          ["Se a arma negar fogo, abro na hora para ver o que houve.", false, "Mantenha apontada para o alvo por cerca de 30 segundos: pode ser retardo de ignição."],
-          ["Posso atirar na água, ela segura o projétil.", false, "Água e superfícies duras e planas causam ricochete."],
-          ["Ao entregar a arma a alguém, ela deve estar descarregada.", true, "E quem recebe também confere."],
+      { kicker: "Desafio", title: "Seguro ou perigoso?",
+        body: `<p>Classifique cada situação o mais rápido que conseguir. Faça a maior sequência de acertos!</p>`,
+        widget: { type: "sorter", labels: ["✅ Seguro", "⚠️ Perigoso"], items: [
+          ["Guardar a arma e a munição em lugares separados.", 0, "E fora do alcance de crianças."],
+          ["Coldrear a arma com o cão armado.", 1, "Nunca transporte ou coldreie com o cão armado."],
+          ["Atirar num lago para “testar” a arma.", 1, "Água causa ricochete."],
+          ["Usar óculos e abafador no estande.", 0, "Sempre, em todo disparo."],
+          ["Testar a trava apertando o gatilho.", 1, "Nunca teste a trava pelo gatilho."],
+          ["Manter o dedo estendido ao longo da arma ao sacar.", 0, "Dedo só no gatilho com o alvo na mira."],
+          ["Levar a arma depois de duas cervejas.", 1, "Nunca porte sob efeito de álcool, drogas ou medicamentos."],
+          ["Parar de atirar ao notar um recuo estranho.", 0, "Pare, descarregue e verifique o cano."],
+          ["Usar munição recarregada antiga que estava na gaveta.", 1, "Munição velha ou recarregada não é confiável."],
+          ["Carregar a arma com o cano para a direção segura.", 0, "Carregar e descarregar sempre assim."],
         ] } },
     ],
   },
@@ -102,18 +120,30 @@ const CHAPTERS = [
     id: "estande", title: "Conduta no Estande", sub: "Silêncio, comando e alinhamento", icon: "📢", cat: "estande",
     slides: [
       { kicker: "As regras da casa", title: "No estande, quem manda é o instrutor",
-        body: `<ol>
-          <li><strong>Silêncio</strong> é fator preponderante de segurança na linha de tiro.</li>
-          <li>A arma fica sempre <strong>desmuniciada e guardada</strong>, salvo comando expresso do instrutor.</li>
-          <li>Carregar, sacar, descarregar, inspecionar e coldrear: só <strong>sob comando</strong>, com o cano para direção segura.</li>
-          <li>Obedeça aos comandos. <strong>Nunca antecipe</strong> e nunca faça nada que não foi comandado.</li>
-        </ol>` },
-      { kicker: "Deu problema?", title: "Braço pra cima, arma no alvo.",
-        body: `<ol start="5">
-          <li>Em qualquer incidente: permaneça <strong>de frente para o alvo</strong>, arma apontada para o alvo, e <strong>levante o braço oposto</strong> para o instrutor te atender.</li>
-          <li>Com mais de um candidato na prova, mantenha o <strong>alinhamento</strong> com os outros atiradores.</li>
-        </ol>
-        <p>Na prova prática, você começa na <strong>posição de retenção</strong>, e as armas com trava ficam travadas até o comando de início.</p>`,
+        body: `<p>Toque em cada regra para entender o porquê:</p>`,
+        widget: { type: "rules", items: [
+          ["🤫", "Silêncio", "É fator preponderante de segurança na linha de tiro.", "Os comandos do instrutor precisam ser ouvidos por todos.", "Nada de conversa paralela na linha de tiro."],
+          ["📦", "Arma desmuniciada e guardada", "Fica assim até o comando expresso do instrutor.", "Ninguém manuseia arma fora de hora.", "Chegou ao estande? A arma continua no estojo até a ordem."],
+          ["📣", "Tudo sob comando", "Carregar, sacar, descarregar, inspecionar e coldrear só sob comando.", "Todos fazem a mesma coisa ao mesmo tempo, com o cano para direção segura.", "Ouviu o comando? Executa. Não ouviu? Não faz."],
+          ["⏱️", "Nunca antecipe", "Não faça nada que não foi comandado.", "Antecipar quebra a sincronia e pega o instrutor de surpresa.", "Mesmo sabendo o próximo passo, espere a ordem."],
+          ["↔️", "Alinhamento", "Com mais candidatos, fique alinhado com os outros atiradores.", "Ninguém fica à frente, na linha de fogo do vizinho.", "Olhe para os lados antes de se posicionar."],
+        ] } },
+      { kicker: "Situação real", title: "Deu problema na prova",
+        body: `<p>Você está na prova prática. Escolha o que fazer:</p>`,
+        widget: { type: "scenario", steps: [
+          ["O instrutor ainda não deu o comando de início. Sua pistola tem trava.", [
+            ["Fico na posição de retenção, com a arma travada, aguardando o comando", true, "É assim que a prova começa pelo regulamento da PF."],
+            ["Já destravo e aponto para o alvo para ganhar tempo", false, "Nunca antecipe. A arma fica travada até o comando de início."],
+          ]],
+          ["No meio da série, a pistola trava e não dispara mais.", [
+            ["Viro para trás para perguntar ao instrutor o que fazer", false, "Nunca se vire com a arma na mão: o cano passaria pelas pessoas."],
+            ["Fico de frente para o alvo, arma apontada para ele, e levanto o braço oposto", true, "Isso. O instrutor vem até você."],
+          ]],
+          ["O instrutor chegou e vai resolver.", [
+            ["Sigo exatamente o que ele mandar", true, "Perfeito. No estande, quem manda é o instrutor."],
+            ["Desmonto a arma para ajudar", false, "Nada que não seja comandado, ainda mais em arma locada."],
+          ]],
+        ] },
         tip: "Virar para trás com a arma na mão para perguntar algo é reprovação na hora (e susto geral)." },
       { kicker: "Treino", title: "Coloque na ordem",
         body: `<p>Sua pistola travou no meio da prova. Toque nos passos na <strong>ordem certa</strong>:</p>`,
@@ -126,27 +156,45 @@ const CHAPTERS = [
     slides: [
       { kicker: "Conceito", title: "O que é arma de fogo",
         body: `<p class="lead">Arma que arremessa projéteis usando a <strong>força expansiva dos gases</strong> gerados pela combustão de um propelente confinado em uma câmara.</p>
-        <p>A câmara normalmente é solidária a um <strong>cano</strong>, que dá continuidade à combustão e garante direção e estabilidade ao projétil.</p>` },
+        <p>Parece complicado, mas é uma sequência simples. Avance pelas etapas:</p>`,
+        widget: { type: "steps", steps: [
+          ["Câmara", "O cartucho fica preso na <strong>câmara</strong>, um espaço fechado."],
+          ["Combustão", "O propelente (pólvora) queima e gera muito gás num espaço pequeno."],
+          ["Expansão", "Os gases empurram o projétil: é a <strong>força expansiva</strong>."],
+          ["Cano", "O <strong>cano</strong>, solidário à câmara, dá continuidade à combustão, direção e estabilidade ao projétil."],
+        ] } },
       { kicker: "Armas curtas", title: "Revólver × pistola",
         body: `<div class="two">
-          <div><h4>Revólver</h4><p>Curta, de porte, de repetição. Tem um <strong>cilindro giratório (tambor)</strong> atrás do cano que serve de carregador; cada furo recebe um cartucho e funciona como câmara.</p></div>
-          <div><h4>Pistola</h4><p>Curta, de porte, geralmente <strong>semiautomática</strong>. Tem <strong>câmara única</strong>, que faz parte do cano, e um carregador que apresenta os cartuchos em fila. Existe também a pistola de repetição, carregada tiro a tiro.</p></div>
-        </div>` },
+          <div><h4>Revólver</h4><p>Curta, de porte, de repetição. <strong>Tambor giratório</strong> atrás do cano serve de carregador; cada furo é uma câmara.</p></div>
+          <div><h4>Pistola</h4><p>Curta, de porte, geralmente <strong>semiautomática</strong>. <strong>Câmara única</strong> no cano e carregador com cartuchos em fila.</p></div>
+        </div>
+        <p>Agora teste: cada característica é de qual?</p>`,
+        widget: { type: "sorter", labels: ["Revólver", "Pistola"], items: [
+          ["Tem um tambor que gira.", 0, "O tambor (cilindro) é o carregador do revólver."],
+          ["Usa carregador destacável no cabo.", 1, "O carregador da pistola entra pelo cabo."],
+          ["Tem ferrolho que corre a cada disparo.", 1, "O ferrolho é da pistola."],
+          ["Cada furo do cilindro funciona como câmara.", 0, "No revólver são várias câmaras, uma em cada furo."],
+          ["Câmara única, que faz parte do cano.", 1, "Na pistola, a câmara é única."],
+          ["Solta gases pela folga entre cano e tambor.", 0, "Por isso os dedos ficam atrás do tambor."],
+        ] } },
       { kicker: "Armas longas", title: "Carabina, rifle e espingarda",
-        body: `<p>Toque em cada cartão para lembrar a diferença:</p>`,
+        body: `<p>A pergunta-chave: <strong>o cano é raiado ou liso?</strong> E se for raiado: <strong>quanto mede?</strong> Vire os cartões:</p>`,
         img: "img/carabina.webp", imgClass: "contain light",
         widget: { type: "flip", cards: [
           ["Carabina", "Longa, portátil, alma <strong>raiada</strong>, cano de <strong>até 16 polegadas</strong>."],
           ["Rifle", "Longa, portátil, alma raiada, cano <strong>maior que 16 polegadas</strong>: mais precisão e alcance."],
           ["Espingarda", "Longa, portátil, alma <strong>lisa</strong> (sem raiamento). Calibre em <em>gauge</em>, ex.: 12GA."],
         ] } },
-      { kicker: "Exemplo da apostila", title: "Espingarda calibre 12",
-        body: `<p>Repare na nomenclatura da espingarda: coronha, soleira, gatilho, guarda-mato, cano e telha. Alma lisa é o que define a espingarda.</p>`,
-        img: "img/espingarda.webp", imgClass: "contain light",
+      { kicker: "Teste rápido", title: "Qual é a arma?",
+        body: `<p>Leia a descrição e diga qual arma longa é:</p>`, img: "img/espingarda.webp", imgClass: "contain light",
+        widget: { type: "scenario", steps: [
+          ["Cano <strong>liso</strong>, calibre 12.", [["Espingarda", true, "Alma lisa = espingarda."], ["Carabina", false, "Carabina tem alma raiada."], ["Rifle", false, "Rifle tem alma raiada."]]],
+          ["Cano <strong>raiado</strong> de 20 polegadas.", [["Rifle", true, "Raiado e maior que 16\" = rifle."], ["Carabina", false, "Carabina vai até 16\"."], ["Espingarda", false, "Espingarda tem alma lisa."]]],
+          ["Cano <strong>raiado</strong> de 16 polegadas.", [["Carabina", true, "Raiado até 16\" = carabina."], ["Rifle", false, "Rifle é maior que 16\"."], ["Espingarda", false, "Espingarda tem alma lisa."]]],
+        ] },
         tip: "Raiada ou lisa? Essa pergunta sozinha separa espingarda de carabina e rifle." },
     ],
   },
-
   {
     id: "municao", title: "Munição e Calibre", sub: "Os 4 componentes do cartucho e o raiamento", icon: "🧨", cat: "nomen",
     slides: [

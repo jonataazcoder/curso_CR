@@ -156,6 +156,14 @@
           </svg>
           <p class="sight-msg" id="sgMsg">Arraste para alinhar a massa na alça.</p>
           <div class="sight-btns"><button class="btn primary fire" id="sgFire">Disparar 🎯</button><button class="btn" id="sgReset" hidden>Nova série ↺</button></div></div>`;
+      case "rules":
+        return `<div class="rules">${w.items.map(([ic, t, r, why, ex]) => `<button class="rule"><span class="ico">${ic}</span><span class="rt"><b>${t}</b><span>${r}</span></span><span class="chev">＋</span>
+          <span class="more"><span><em>Por quê?</em> ${why}</span><span><em>Na prática:</em> ${ex}</span></span></button>`).join("")}</div><p class="rules-count">0 de ${w.items.length} abertas</p>`;
+      case "sorter":
+        return `<div class="sorter"><div class="sorter-top"><span class="sorter-prog"></span><span class="sorter-streak"></span></div>
+          <div class="sorter-card"></div><div class="sorter-btns">${w.labels.map((l, k) => `<button class="btn" data-a="${k}">${l}</button>`).join("")}</div><div class="mini-fb"></div></div>`;
+      case "scenario":
+        return `<div class="scen"><div class="step-dots">${w.steps.map(() => "<span></span>").join("")}</div><div class="scen-body"></div></div>`;
       case "model3d":
         return `<div class="m3d"><p class="m3d-loading">Carregando modelo 3D…</p></div>`;
       case "breath":
@@ -252,6 +260,67 @@
       reset(); tick();
     }
     if (w.type === "breath") $("#bGo").onclick = startBreath;
+    if (w.type === "rules") root.onclick = (e) => {
+      const b = e.target.closest(".rule"); if (!b) return;
+      b.classList.toggle("on"); b.dataset.seen = 1;
+      const n = $$(".rule[data-seen]", root).length;
+      $(".rules-count", root).textContent = n === w.items.length ? "✅ Todas vistas. Agora você sabe o porquê de cada uma." : `${n} de ${w.items.length} abertas`;
+    };
+    if (w.type === "sorter") {
+      let order, k, hits, streak, best, waiting;
+      const start = () => { order = shuffle(w.items); k = 0; hits = 0; streak = 0; best = 0; waiting = false; draw(); };
+      const draw = () => {
+        $(".sorter-prog", root).textContent = `${Math.min(k + 1, order.length)} de ${order.length}`;
+        $(".sorter-streak", root).textContent = streak > 1 ? `🔥 ${streak} seguidas` : "";
+        if (k >= order.length) {
+          $(".sorter-card", root).classList.remove("good", "bad");
+          $(".sorter-card", root).innerHTML = `<b class="sorter-end">${hits}/${order.length}</b><span>${hits === order.length ? "Gabaritou! 🏆" : hits >= order.length * 0.7 ? "Mandou bem!" : "Vale treinar de novo."} Melhor sequência: ${best}.</span>`;
+          $(".sorter-btns", root).innerHTML = `<button class="btn primary" data-r="1">Jogar de novo ↺</button>`;
+          $(".mini-fb", root).innerHTML = ""; return;
+        }
+        $(".sorter-card", root).innerHTML = `<p>${order[k][0]}</p>`;
+        $(".sorter-card", root).classList.remove("good", "bad");
+      };
+      root.onclick = (e) => {
+        if (e.target.closest("[data-r]")) { $(".sorter-btns", root).innerHTML = w.labels.map((l, j) => `<button class="btn" data-a="${j}">${l}</button>`).join(""); return start(); }
+        if (e.target.closest("[data-n]")) { k++; waiting = false; $(".mini-fb", root).innerHTML = ""; $$(".sorter-btns .btn", root).forEach((x) => (x.disabled = false)); return draw(); }
+        const b = e.target.closest("[data-a]"); if (!b || waiting) return;
+        const [, ans, ex] = order[k], ok = +b.dataset.a === ans;
+        waiting = true; hits += ok; streak = ok ? streak + 1 : 0; best = Math.max(best, streak);
+        $(".sorter-card", root).classList.add(ok ? "good" : "bad");
+        $$(".sorter-btns .btn", root).forEach((x) => (x.disabled = true));
+        $(".sorter-streak", root).textContent = streak > 1 ? `🔥 ${streak} seguidas` : "";
+        $(".mini-fb", root).innerHTML = `<div class="fb ${ok ? "good" : "bad"}"><b>${pick(ok ? JOKES.right : JOKES.wrong)}</b><p>${ex}</p><button class="btn primary" data-n="1">${k === order.length - 1 ? "Ver resultado" : "Próxima →"}</button></div>`;
+      };
+      start();
+    }
+    if (w.type === "scenario") {
+      let k = 0, errs = 0;
+      const draw = () => {
+        $$(".step-dots span", root).forEach((d, j) => d.classList.toggle("on", j <= k));
+        if (k >= w.steps.length) {
+          $(".scen-body", root).innerHTML = `<div class="scen-end"><b>${errs === 0 ? "Cena perfeita! 🏆" : "Cena concluída ✔"}</b><span>${errs === 0 ? "Você acertou todas as decisões de primeira." : `${errs} escolha(s) errada(s) no caminho. Repita até acertar tudo de primeira.`}</span><button class="btn" data-r="1">Repetir ↺</button></div>`;
+          return;
+        }
+        const [sit, opts] = w.steps[k];
+        $(".scen-body", root).innerHTML = `<p class="scen-sit"><small>Momento ${k + 1} de ${w.steps.length}</small>${sit}</p>
+          <div class="opts">${shuffle(opts.map((o, j) => [o, j])).map(([o, j]) => `<button class="opt" data-j="${j}">${o[0]}</button>`).join("")}</div><div class="mini-fb"></div>`;
+      };
+      root.onclick = (e) => {
+        if (e.target.closest("[data-r]")) { k = 0; errs = 0; return draw(); }
+        if (e.target.closest("[data-n]")) { k++; return draw(); }
+        const b = e.target.closest(".opt"); if (!b || b.disabled) return;
+        const [, ok, fb] = w.steps[k][1][+b.dataset.j];
+        if (ok) {
+          $$(".opt", root).forEach((x) => (x.disabled = true)); b.classList.add("ok");
+          $(".mini-fb", root).innerHTML = `<div class="fb good"><b>${pick(JOKES.right)}</b><p>${fb}</p><button class="btn primary" data-n="1">${k === w.steps.length - 1 ? "Concluir" : "Continuar →"}</button></div>`;
+        } else {
+          errs++; b.disabled = true; b.classList.add("no");
+          $(".mini-fb", root).innerHTML = `<div class="fb bad"><b>${pick(JOKES.wrong)}</b><p>${fb} Tente outra opção.</p></div>`;
+        }
+      };
+      draw();
+    }
     if (w.type === "model3d") import("./model3d.js").then((m) => m.mount($(".m3d", root), w.kind)).catch(() => { $(".m3d", root).innerHTML = `<p class="m3d-loading">Não foi possível abrir o 3D neste aparelho. Veja a figura no próximo slide.</p>`; });
   }
 

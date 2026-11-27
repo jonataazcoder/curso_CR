@@ -62,40 +62,55 @@ function revolver() {
 function pistola() {
   const P = [];
   const add = (key, name, desc, explode, ...meshes) => { const g = new THREE.Group(); meshes.forEach((m) => g.add(m)); P.push({ key, name, desc, explode, group: g }); };
+  const SIDE = 0.26; // face lateral esquerda da armação (comandos)
 
+  // Ferrolho: perfil com chanfro na frente e na traseira, serrilhas e janela de ejeção
   const slide = new THREE.Group();
-  slide.add(at(box(3.6, 0.55, 0.5, MAT.metal()), 0.2, 1.28));
-  for (let k = 0; k < 6; k++) { slide.add(at(box(0.05, 0.42, 0.52, MAT.dark()), -1.4 + k * 0.1, 1.26)); }
-  slide.add(at(box(0.75, 0.28, 0.04, MAT.dark()), 0.55, 1.36, -0.25));
+  slide.add(extrude([[-1.62, 1.0], [2.02, 1.0], [2.02, 1.46], [1.9, 1.58], [-1.5, 1.58], [-1.62, 1.48]], 0.46, MAT.metal(), 0.03));
+  for (let k = 0; k < 7; k++) {
+    slide.add(at(box(0.035, 0.44, 0.535, MAT.dark()), -1.42 + k * 0.08, 1.29));
+  }
+  slide.add(at(box(0.8, 0.26, 0.06, MAT.dark()), 0.55, 1.34, -0.25));
+  slide.add(at(cylX(0.11, 0.02, MAT.dark(), 24), 2.06, 1.29));
+  add("ferrolho", "Ferrolho", "Parte de cima que corre para trás a cada disparo: extrai e ejeta o estojo e leva o próximo cartucho à câmara. Do lado direito fica a janela de ejeção.", [0, 1.1, 0], slide);
 
-  add("ferrolho", "Ferrolho", "Parte de cima que corre para trás a cada disparo: extrai e ejeta o estojo e leva o próximo cartucho à câmara.", [0, 1.0, 0], slide);
-  add("cano", "Cano", "Na pistola, a câmara é única e faz parte do cano. Fica dentro do ferrolho.", [0.6, 0.45, 0.9],
-    at(cylX(0.16, 2.7, MAT.dark()), 0.7, 1.28), at(box(0.55, 0.36, 0.36, MAT.dark()), -0.45, 1.28));
-  add("armacao", "Armação", "Estrutura de baixo, onde ficam gatilho, cabo e comandos.", [0, 0, 0],
-    at(box(3.0, 0.36, 0.46, MAT.poly()), 0.35, 0.83));
-  add("cabo", "Cabo (empunhadura)", "Onde a mão forte segura; a mão fraca apoia com o polegar estendido.", [-0.4, -0.3, 0],
-    extrude([[-1.5, 0.66], [-0.5, 0.66], [-0.82, -1.35], [-1.78, -1.22]], 0.52, MAT.poly()));
+  add("cano", "Cano", "Na pistola, a câmara é única e faz parte do cano. Ele fica dentro do ferrolho; aqui aparece quando você separa as peças.", [0.2, 2.1, 0],
+    at(cylX(0.15, 2.5, MAT.dark()), 0.8, 1.29), at(box(0.62, 0.34, 0.34, MAT.dark()), -0.6, 1.29));
+
+  // Armação: parte superior do frame (trilho/guarda-pó) até a traseira
+  add("armacao", "Armação", "Estrutura de baixo, onde se apoiam o ferrolho, o gatilho, o cabo e os comandos.", [0, 0, 0],
+    extrude([[-1.66, 0.62], [-1.66, 1.0], [1.9, 1.0], [1.9, 0.7], [0.75, 0.62], [-0.42, 0.62]], 0.5, MAT.poly(), 0.025));
+
+  // Cabo: começa exatamente sob a armação, sem fresta
+  add("cabo", "Cabo (empunhadura)", "Onde a mão forte segura; a mão fraca apoia com o polegar estendido. O carregador entra por baixo dele.", [-0.15, -0.35, 0],
+    extrude([[-1.66, 0.64], [-0.42, 0.64], [-0.78, -1.3], [-1.86, -1.18], [-1.78, 0.2]], 0.52, MAT.poly(), 0.035));
+
+  // Carregador: segue a inclinação do cabo; só a base aparece embaixo
+  const ang = -Math.atan(0.28 / 1.88);
   const mag = new THREE.Group();
-  mag.add(at(box(0.62, 2.1, 0.32, MAT.dark()), 0, 0)); mag.add(at(box(0.78, 0.14, 0.42, MAT.poly()), -0.02, -1.08));
-  mag.position.set(-1.1, -0.3, 0); mag.rotation.z = 0.16;
-  add("carregador", "Carregador", "Peça removível com corpo, mola, transportador e base. Guarda os cartuchos em fila.", [-0.35, -1.6, 0], mag);
-  add("gatilho", "Gatilho", "Na pistola, fica no meio da primeira falange do indicador.", [0, -0.5, 0.6],
-    at(arc(0.24, 0.055, Math.PI * 0.55, MAT.dark()), 0.08, 0.38, 0, Math.PI * 0.62));
-  add("guardamato", "Guarda-mato", "Arco que protege o gatilho contra acionamento acidental.", [0.2, -0.8, 0],
-    at(arc(0.42, 0.06, Math.PI, MAT.poly()), 0.15, 0.62, 0, Math.PI));
+  mag.add(at(box(0.6, 2.0, 0.3, MAT.dark()), 0, 0));
+  mag.add(at(box(0.74, 0.14, 0.4, MAT.poly()), -0.03, -1.05));
+  mag.add(at(box(0.5, 0.06, 0.2, MAT.sight()), 0, 0.98));
+  mag.position.set(-1.19, -0.36, 0); mag.rotation.z = ang;
+  add("carregador", "Carregador", "Peça removível com corpo, mola, transportador e base. Guarda os cartuchos em fila e entra pelo cabo.", [-0.3, -1.8, 0], mag);
+
+  add("gatilho", "Gatilho", "Na pistola, fica no meio da primeira falange do indicador.", [0, -0.4, 0.7],
+    at(arc(0.26, 0.055, Math.PI * 0.55, MAT.dark()), 0.02, 0.36, 0, Math.PI * 0.62));
+  add("guardamato", "Guarda-mato", "Arco que protege o gatilho contra acionamento acidental.", [0.2, -0.7, 0],
+    at(arc(0.5, 0.065, Math.PI, MAT.poly()), 0.15, 0.64, 0, Math.PI), at(box(1.0, 0.1, 0.13, MAT.poly()), 0.15, 0.14));
   add("cao", "Cão", "Liberado pelo gatilho, bate no percussor, que atinge a espoleta.", [-0.6, 0.4, 0],
-    at(box(0.22, 0.32, 0.18, MAT.dark()), -1.68, 1.22, 0, 0.3));
-  add("massa", "Massa de mira", "Elemento de pontaria na frente do ferrolho.", [0.4, 0.5, 0], at(box(0.16, 0.16, 0.08, MAT.sight()), 1.85, 1.63));
-  add("alca", "Alça de mira", "Entalhe na parte de trás do ferrolho.", [-0.4, 0.5, 0],
-    at(box(0.14, 0.16, 0.1, MAT.sight()), -1.42, 1.63, 0.13), at(box(0.14, 0.16, 0.1, MAT.sight()), -1.42, 1.63, -0.13));
-  add("retemcarregador", "Retém do carregador", "Botão que solta o carregador.", [0, 0, 0.7],
-    at(new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.1, 20).rotateX(Math.PI / 2), MAT.sight()), -0.42, 0.55, 0.27));
-  add("retemferrolho", "Retém do ferrolho", "Alavanca que trava o ferrolho aberto (por exemplo, quando acaba a munição).", [0, 0.2, 0.7],
-    at(box(0.55, 0.08, 0.05, MAT.dark()), -0.05, 1.0, 0.27));
+    at(box(0.18, 0.3, 0.2, MAT.dark()), -1.72, 1.12, 0, 0.35), at(box(0.14, 0.1, 0.2, MAT.dark()), -1.8, 1.28, 0, 0.35));
+  add("massa", "Massa de mira", "Elemento de pontaria na frente do ferrolho.", [0.4, 0.5, 0], at(box(0.14, 0.14, 0.08, MAT.sight()), 1.78, 1.65));
+  add("alca", "Alça de mira", "Entalhe na parte de trás do ferrolho; a massa aparece no meio dela.", [-0.4, 0.5, 0],
+    at(box(0.16, 0.15, 0.11, MAT.sight()), -1.4, 1.65, 0.12), at(box(0.16, 0.15, 0.11, MAT.sight()), -1.4, 1.65, -0.12));
+  add("retemcarregador", "Retém do carregador", "Botão logo atrás do guarda-mato que solta o carregador.", [0, 0, 0.7],
+    at(new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.08, 20).rotateX(Math.PI / 2), MAT.sight()), -0.5, 0.48, SIDE + 0.02));
+  add("retemferrolho", "Retém do ferrolho", "Alavanca que trava o ferrolho aberto, por exemplo quando acaba a munição.", [0, 0.2, 0.7],
+    at(box(0.5, 0.07, 0.05, MAT.dark()), -0.15, 0.93, SIDE + 0.02));
   add("alavanca", "Alavanca de desmontagem", "Usada para desmontar a pistola em 1º escalão, para limpeza.", [0.3, 0, 0.7],
-    at(box(0.26, 0.1, 0.05, MAT.dark()), 0.75, 0.92, 0.27));
+    at(box(0.24, 0.09, 0.05, MAT.dark()), 0.6, 0.85, SIDE + 0.02));
   add("registro", "Registro de segurança", "Trava manual. É um dispositivo mecânico e não substitui o bom senso.", [-0.3, 0, 0.7],
-    at(box(0.26, 0.12, 0.05, MAT.sight()), -1.3, 1.02, 0.27));
+    at(box(0.24, 0.12, 0.05, MAT.sight()), -1.38, 0.88, SIDE + 0.02));
   return P;
 }
 
@@ -113,7 +128,7 @@ export function mount(root, kind) {
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
-  camera.position.set(1.2, 1.6, 8.5);
+  camera.position.set(1.8, 1.4, 6.6);
   scene.add(new THREE.HemisphereLight(0xfff4e0, 0x202020, 1.6));
   const key = new THREE.DirectionalLight(0xffffff, 2.2); key.position.set(4, 6, 6); scene.add(key);
   const rim = new THREE.DirectionalLight(0xf5a623, 1.2); rim.position.set(-6, 2, -4); scene.add(rim);
