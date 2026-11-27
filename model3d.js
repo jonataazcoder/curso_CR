@@ -66,21 +66,21 @@ function revolver() {
     at(box(1.75, 0.16, 0.5, MAT.metal()), 0.45, 1.56), at(box(0.38, 0.8, 0.5, MAT.metal()), 1.32, 1.18),
     at(box(1.9, 0.22, 0.5, MAT.metal()), 0.5, 0.3), at(box(0.32, 1.38, 0.5, MAT.metal()), -0.3, 0.93));
   const revGrip = (s) => {
-    s.moveTo(-0.14, 0.32);
-    s.quadraticCurveTo(-0.2, -0.3, -0.42, -0.95);
-    s.quadraticCurveTo(-0.55, -1.32, -0.92, -1.3);
-    s.quadraticCurveTo(-1.22, -1.26, -1.18, -0.95);
-    s.quadraticCurveTo(-1.02, -0.2, -0.78, 0.55);
-    s.quadraticCurveTo(-0.66, 0.98, -0.46, 1.12);
+    s.moveTo(-0.15, 0.32);
+    s.quadraticCurveTo(-0.22, -0.3, -0.42, -0.95);
+    s.quadraticCurveTo(-0.52, -1.27, -0.82, -1.27);
+    s.quadraticCurveTo(-1.06, -1.24, -1.02, -0.97);
+    s.quadraticCurveTo(-0.9, -0.25, -0.72, 0.5);
+    s.quadraticCurveTo(-0.62, 0.95, -0.46, 1.1);
     s.lineTo(-0.46, 0.32);
-    s.lineTo(-0.14, 0.32);
+    s.lineTo(-0.15, 0.32);
   };
   const revPanel = (s) => {
-    s.moveTo(-0.3, 0.2); s.quadraticCurveTo(-0.38, -0.4, -0.55, -0.95); s.quadraticCurveTo(-0.7, -1.15, -0.92, -1.12);
-    s.quadraticCurveTo(-1.08, -1.1, -1.04, -0.9); s.quadraticCurveTo(-0.9, -0.2, -0.68, 0.45); s.quadraticCurveTo(-0.55, 0.7, -0.46, 0.75); s.lineTo(-0.3, 0.2);
+    s.moveTo(-0.3, 0.2); s.quadraticCurveTo(-0.36, -0.4, -0.52, -0.95); s.quadraticCurveTo(-0.64, -1.12, -0.82, -1.12);
+    s.quadraticCurveTo(-0.94, -1.1, -0.92, -0.92); s.quadraticCurveTo(-0.82, -0.25, -0.64, 0.42); s.quadraticCurveTo(-0.54, 0.66, -0.46, 0.72); s.lineTo(-0.3, 0.2);
   };
   add("cabo", "Cabo (empunhadura)", "Onde a mão forte segura, com os dedos atrás do tambor. O formato curvo encaixa na palma.", [-0.5, -0.7, 0],
-    curved(revGrip, 0.44, MAT.grip(), 0.07), ...panels(revPanel, 0.295, checker(0x3b2416)));
+    curved(revGrip, 0.3, MAT.grip(), 0.05), ...panels(revPanel, 0.202, checker(0x3b2416)));
   add("cao", "Cão", "Peça que, liberada pelo gatilho, bate no percussor. Pode ser armado com o polegar (ação simples).", [-0.6, 0.5, 0],
     at(box(0.24, 0.42, 0.16, MAT.dark()), -0.55, 1.42, 0, 0.35), at(box(0.3, 0.1, 0.2, MAT.dark()), -0.72, 1.65, 0, 0.5));
   add("gatilho", "Gatilho", "Tecla acionada pelo dedo. No revólver, costuma ficar mais perto da primeira dobra da falange.", [0, -0.6, 0.6],
@@ -122,32 +122,32 @@ function pistola() {
 
   // Cabo: começa exatamente sob a armação, sem fresta
   const pisGrip = (s) => {
-    s.moveTo(-0.44, 0.64);
-    s.lineTo(-1.62, 0.64);
-    s.quadraticCurveTo(-1.74, 0.5, -1.72, 0.3);
-    s.quadraticCurveTo(-1.86, -0.35, -1.98, -1.12);
-    s.quadraticCurveTo(-2.0, -1.3, -1.82, -1.32);
-    s.lineTo(-1.02, -1.36);
-    s.quadraticCurveTo(-0.9, -1.36, -0.92, -1.22);
-    s.quadraticCurveTo(-0.86, -1.0, -0.8, -0.86);
-    s.quadraticCurveTo(-0.74, -0.68, -0.7, -0.52);
-    s.quadraticCurveTo(-0.64, -0.36, -0.6, -0.2);
-    s.quadraticCurveTo(-0.52, 0.2, -0.44, 0.64);
+    s.moveTo(-0.5, 0.64);
+    s.lineTo(-1.56, 0.64);
+    s.quadraticCurveTo(-1.66, 0.5, -1.64, 0.3);
+    s.quadraticCurveTo(-1.74, -0.35, -1.84, -1.12);
+    s.quadraticCurveTo(-1.86, -1.3, -1.7, -1.31);
+    s.lineTo(-1.14, -1.34);
+    s.quadraticCurveTo(-1.02, -1.34, -1.04, -1.2);
+    s.quadraticCurveTo(-0.96, -0.98, -0.9, -0.84);
+    s.quadraticCurveTo(-0.82, -0.66, -0.78, -0.5);
+    s.quadraticCurveTo(-0.7, -0.34, -0.66, -0.2);
+    s.quadraticCurveTo(-0.57, 0.2, -0.5, 0.64);
   };
   const pisPanel = (s) => {
-    s.moveTo(-0.66, 0.4); s.lineTo(-1.56, 0.4); s.quadraticCurveTo(-1.66, -0.3, -1.8, -1.02);
-    s.quadraticCurveTo(-1.8, -1.14, -1.68, -1.15); s.lineTo(-1.08, -1.18); s.quadraticCurveTo(-1.0, -0.6, -0.86, -0.2); s.quadraticCurveTo(-0.72, 0.15, -0.66, 0.4);
+    s.moveTo(-0.72, 0.4); s.lineTo(-1.5, 0.4); s.quadraticCurveTo(-1.58, -0.3, -1.7, -1.02);
+    s.quadraticCurveTo(-1.7, -1.14, -1.6, -1.15); s.lineTo(-1.18, -1.18); s.quadraticCurveTo(-1.1, -0.6, -0.94, -0.2); s.quadraticCurveTo(-0.79, 0.15, -0.72, 0.4);
   };
   add("cabo", "Cabo (empunhadura)", "Onde a mão forte segura; a mão fraca apoia com o polegar estendido. O carregador entra por baixo dele.", [-0.15, -0.35, 0],
-    curved(pisGrip, 0.46, MAT.poly(), 0.06), ...panels(pisPanel, 0.292, checker(0x1d1f23)));
+    curved(pisGrip, 0.34, MAT.poly(), 0.05), ...panels(pisPanel, 0.222, checker(0x1d1f23)));
 
   // Carregador: segue a inclinação do cabo; só a base aparece embaixo
-  const ang = -Math.atan(0.42 / 1.95);
+  const ang = -Math.atan(0.4 / 1.95);
   const mag = new THREE.Group();
-  mag.add(at(box(0.6, 2.0, 0.3, MAT.dark()), 0, 0));
-  mag.add(at(box(0.74, 0.14, 0.4, MAT.poly()), -0.03, -1.05));
-  mag.add(at(box(0.5, 0.06, 0.2, MAT.sight()), 0, 0.98));
-  mag.position.set(-1.3, -0.38, 0); mag.rotation.z = ang;
+  mag.add(at(box(0.48, 2.0, 0.22, MAT.dark()), 0, 0));
+  mag.add(at(box(0.6, 0.12, 0.32, MAT.poly()), -0.02, -1.04));
+  mag.add(at(box(0.4, 0.06, 0.16, MAT.sight()), 0, 0.98));
+  mag.position.set(-1.24, -0.4, 0); mag.rotation.z = ang;
   add("carregador", "Carregador", "Peça removível com corpo, mola, transportador e base. Guarda os cartuchos em fila e entra pelo cabo.", [-0.3, -1.8, 0], mag);
 
   add("gatilho", "Gatilho", "Na pistola, fica no meio da primeira falange do indicador.", [0, -0.4, 0.7],
